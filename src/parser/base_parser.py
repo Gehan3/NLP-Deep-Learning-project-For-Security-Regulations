@@ -16,6 +16,17 @@ class ParserState(Enum):
     ATTRIBUTES = 5
     TESTING = 6
 
+# ==========================================================
+# Section Map for ISO 27001
+# ==========================================================
+SECTION_MAP = {
+    "5": "Leadership",
+    "6": "Planning",
+    "7": "Support",
+    "8": "Operation",
+    "9": "Performance evaluation",
+    "10": "Improvement"
+}
 
 # ==========================================================
 # Empty Control Factory
@@ -49,13 +60,14 @@ class BaseParser:
         self,
         pdf_path: Path,
         standard: str,
-        control_regex
+        control_regex,
+        section_map=None
     ):
 
         self.pdf_path = pdf_path
         self.standard = standard
         self.control_regex = control_regex
-
+        self.section_map = section_map
         self.current = None
 
         self.controls = []
