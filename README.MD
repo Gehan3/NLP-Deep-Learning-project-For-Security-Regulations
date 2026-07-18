@@ -366,8 +366,40 @@ Completed:
 Next:
 
 ⬜ Chunking
+## standard Chunking strategy
+1)Fixed-size chunking
+    A[Artificial intelligence is transforming technology and shaping the future.] --> B[Overlap]
+    B --> C["Chunk 1: Artificial intelligence is transforming technology"]
+    B --> D["Chunk 2: transforming technology and shaping the future."]
+2) Semantic chunking
+    A[Document] --> B[Segment document<br>sentences or paragraphs]
+    B --> C[Initial first chunk]
+    C --> D[Keep adding new segments until cosine similarity drops drastically]
+    D --> E[Final first chunk]
+    D --> F[Initial second chunk]
+    E --> G[Final chunks]
+    F --> G
+3) Recursive chunking
+    A[Document] --> B[Segment document<br>paragraphs or thematic sections]
+    B --> C[Select a segment]
+    C --> D{Size > chunk-size limit?}
+    D -- NO --> B
+    D -- YES --> E[Split further recursively]
+    E --> D
+4) Document structure-based chunking
+    A["Document:<br>- Title<br>- Introduction<br>- Section #1<br>- Section #2<br>- Conclusion"] --> B[Chunk using the inherent structure]
+    B --> C[Chunk 1: Title]
+    B --> D[Chunk 2: Introduction]
+    B --> E[Chunk 3: Section #1]
+    B --> F[Chunk 4: Section #2]
+    B --> G[Chunk 5: Conclusion]
+    G --> H["*Merge with recursive chunking if needed"]
+5) LLM-based chunking
+    A[Document] --> B[Input to LLM]
+    B --> C[LLM]
+    C --> D[LLM generates chunks]
+    D --> E[Final chunks]
 ## ✂️ Chunking Strategies (ISO 27002 RAG)
-
 Since ISO 27002 has a highly structured layout (**Control ➡️ Purpose ➡️ Guidance ➡️ Other Info**), standard character-based chunking will cause a loss of context. We propose three structural chunking strategies:
 
 ### 1. Metadata Enrichment (Semantic Tagging)
@@ -391,8 +423,8 @@ Since ISO 27002 has a highly structured layout (**Control ➡️ Purpose ➡️ 
 * **Pros:** Simple to implement, maintains logical transitions between adjacent ideas.
 * **Cons:** May lead to redundant context or larger chunk sizes.
 
----
-### I prefer Parent child 
+### Main way used in parser Document structure-based chunking 
+### I prefer Parent child (Recursive Chunking)
 ⚙️ Phase 1: Pipeline Initialization & Configuration
 
 chunker.py

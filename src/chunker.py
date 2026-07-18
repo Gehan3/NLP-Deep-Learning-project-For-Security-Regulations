@@ -23,7 +23,7 @@ class ChunkerConfig:
     parents_output_path: Path = Path("data/chunks/iso27002_parents.json")
     children_output_path: Path = Path("data/chunks/iso27002_children.json")
     #change and try to see the results
-    child_target_tokens: int = 66     
+    child_target_tokens: int = 66 
     overlap_tokens: int = 12         
     min_child_tokens: int = 8       
     tokenizer_name: str = "cl100k_base" # used for GPT-change according to our model
