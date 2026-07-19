@@ -17,15 +17,13 @@ class ParserState(Enum):
     TESTING = 6
 
 # ==========================================================
-# Section Map for ISO 27001
+# Section Map for ISO 27002
 # ==========================================================
 SECTION_MAP = {
-    "5": "Leadership",
-    "6": "Planning",
-    "7": "Support",
-    "8": "Operation",
-    "9": "Performance evaluation",
-    "10": "Improvement"
+    "5":"Organizational controls",
+    "6": "People controls",
+    "7": "Physical controls",
+    "8": "Technological controls",
 }
 
 # ==========================================================

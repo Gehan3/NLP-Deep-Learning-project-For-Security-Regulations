@@ -7,7 +7,7 @@ import json
 import logging
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass , field
 from pathlib import Path
 from typing import Optional
 
@@ -23,7 +23,7 @@ class ChunkerConfig:
     parents_output_path: Path = Path("data/chunks/iso27002_parents.json")
     children_output_path: Path = Path("data/chunks/iso27002_children.json")
     #change and try to see the results
-    child_target_tokens: int = 66 
+    child_target_tokens: int = 60 
     overlap_tokens: int = 12         
     min_child_tokens: int = 8       
     tokenizer_name: str = "cl100k_base" # used for GPT-change according to our model
@@ -31,6 +31,17 @@ class ChunkerConfig:
 
     sections: tuple[str, ...] = ("control", "purpose", "guidance", "other_information")
 
+    standard_name: str = "ISO 27002"
+    #update1
+    section_token_config: dict[str, tuple[int, int]] = field(
+        default_factory=lambda: {
+            "control": (50, 10),
+            "purpose": (40, 8),
+            "guidance": (70, 15),
+            "other_information": (55, 10),
+        }
+    )
+ 
     standard_name: str = "ISO 27002"
 
 logging.basicConfig(
@@ -166,7 +177,7 @@ class ParentChildChunker:
 
         self._skipped_sections = 0
         self._oversized_sentences = 0
-
+        self._oversized_examples: list[dict] = []
     # ---- loading 
 
     def load_controls(self) -> list[dict]:
@@ -196,29 +207,56 @@ class ParentChildChunker:
         )
 
     # ---- packing sentences into token-bounded, overlapping chunks --
-
-    def _pack_sentences(self, sentences: list[str]) -> list[str]:
+    #update1
+    def _resolve_target_and_overlap(self, section: str) -> tuple[int, int]:
         cfg = self.config
+        return cfg.section_token_config.get(
+            section, (cfg.child_target_tokens, cfg.overlap_tokens)
+        )
+   #update2
+    def _pack_sentences(
+        self,
+        sentences: list[str],
+        target_tokens: int,
+        overlap_tokens: int,
+        control_id: str,  
+        section: str
+    ) -> list[str]:
+        # الرمز [\s\W]+ معناه أي مسافة أو أي رمز (زي الشرطة الطويلة)
+        table_pattern = re.compile(r"Table\s*[\W]+\s*[AB]\.[12]", re.IGNORECASE)#update3
         chunks: list[list[str]] = []
         current: list[str] = []
         current_tokens = 0
+     
 
         for sentence in sentences:
+            print(f"DEBUG: Processing: {sentence[:50]}")#update3 Debug
+            clean_s = sentence.strip() #Update3 to remove table A1,2+B1,2
+            if clean_s.startswith("Table") and any(x in clean_s for x in ["A.", "B."]):
+                logger.info(f"Skipping table: {clean_s[:20]}")
+                continue   
             sent_tokens = self.tokens.count(sentence)
 
             # Safety net: a single sentence bigger than the whole budget.
-            if sent_tokens > cfg.child_target_tokens:
+            #update1
+            if sent_tokens > target_tokens:
                 if current:
                     chunks.append(current)
                     current, current_tokens = [], 0
                 self._oversized_sentences += 1
-                for piece in self.tokens.split_by_tokens(sentence, cfg.child_target_tokens):
+                self._oversized_examples.append({
+                    "section": "unknown", #update2 (section)
+                    "token_count": sent_tokens,
+                    "target_tokens": target_tokens,
+                    "text_preview": sentence[:100] # أول 100 حرف
+                })
+                for piece in self.tokens.split_by_tokens(sentence, target_tokens):
                     chunks.append([piece])
                 continue
 
-            if current and current_tokens + sent_tokens > cfg.child_target_tokens:
+            if current and current_tokens + sent_tokens > target_tokens:
                 chunks.append(current)
-                current, current_tokens = self._build_overlap(current)
+                current, current_tokens = self._build_overlap(current, overlap_tokens)
 
             current.append(sentence)
             current_tokens += sent_tokens
@@ -228,17 +266,18 @@ class ParentChildChunker:
 
         return [" ".join(c) for c in chunks]
 
-    def _build_overlap(self, previous_chunk: list[str]) -> tuple[list[str], int]:
-        cfg = self.config
+    def _build_overlap(
+        self, previous_chunk: list[str], overlap_tokens: int
+    ) -> tuple[list[str], int]:
         overlap_sentences: list[str] = []
-        overlap_tokens = 0
+        collected_tokens = 0
         for sentence in reversed(previous_chunk):
             t = self.tokens.count(sentence)
-            if overlap_tokens + t > cfg.overlap_tokens:
+            if collected_tokens + t > overlap_tokens:
                 break
             overlap_sentences.insert(0, sentence)
-            overlap_tokens += t
-        return overlap_sentences, overlap_tokens
+            collected_tokens += t
+        return overlap_sentences, collected_tokens
 
     # ---- per-section child generation -------------------------------
 
@@ -252,7 +291,11 @@ class ParentChildChunker:
             parent.control_id, parent.title, parent.section
         )
 
-        raw_chunks = self._pack_sentences(sentences)
+        target_tokens, overlap_tokens = self._resolve_target_and_overlap(parent.section)
+        #update2
+        raw_chunks = self._pack_sentences(sentences, target_tokens, overlap_tokens
+                                          ,control_id=parent.control_id, section=parent.section) 
+        """control_id=parent.control_id, section=parent.section"""
 
         children: list[ChildChunk] = []
         seq = 1
@@ -343,7 +386,7 @@ class ParentChildChunker:
                 json.dump([item.to_dict() for item in data], f, indent=2, ensure_ascii=False)
             logger.info(f"Saved -> {path}")
         write_json(self.config.parents_output_path, self.parents)
-        write_json(self.config.children_output_path, self.children)
+        write_json(self.config.children_output_path, self.children) #take_care self
 
     # ---- stats -----------------------------------------------------------
     #نتاكد بيها الدنيا تمام وبعدها نشيلها
@@ -371,8 +414,34 @@ class ParentChildChunker:
         print("Children per section:")
         for section, count in sorted(by_section.items()):
             print(f"  - {section:<18} {count}")
+        print("=" * 60 + "\n")#update1
+        if self._oversized_examples:
+            oversized_by_section: dict[str, int] = {}
+            for ex in self._oversized_examples:
+                oversized_by_section[ex["section"]] = (
+                    oversized_by_section.get(ex["section"], 0) + 1
+                )
+ 
+            print("\nOversized sentences by section:")
+            for section, count in sorted(oversized_by_section.items()):
+                print(f"  - {section:<18} {count}")
+            #update2
+            worst = sorted(
+                self._oversized_examples, key=lambda e: e.get("token_count", 0), reverse=True
+            )[:5]
+            print("\nTop 5 longest oversized sentences (evidence):")
+            for ex in worst:
+                # بنستخدم .get عشان لو البيانات مش كاملة الكود ما يضربش
+                c_id = ex.get('control_id', 'N/A')
+                sec = ex.get('section', 'N/A')
+                count = ex.get('token_count', 0)
+                budget = ex.get('target_tokens', 0)
+                preview = ex.get('text_preview', 'No preview available')
+                
+                print(f"  [{c_id} / {sec}] {count} tokens (budget: {budget})")
+                print(f"    \"{preview}...\"")
+ 
         print("=" * 60 + "\n")
-
 
 # =======================================================================
 # Entrypoint
