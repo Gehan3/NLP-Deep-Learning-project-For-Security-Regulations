@@ -1,9 +1,12 @@
 from importlib import import_module
-
 import streamlit as st
-
-rag = import_module("prompt")
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+try:
+    import prompt as rag
+except ImportError:
+    from src import prompt as rag
 try:
     if not rag.OPENROUTER_API_KEY:
         rag.OPENROUTER_API_KEY = st.secrets.get("OPENROUTER_API_KEY", "")
