@@ -22,10 +22,6 @@ if st.button("Answer") and question.strip():
     answer, sources = rag.answer_question(question)
     st.text_area("Answer", value=answer, height=220)
 
-    with st.expander("Sources"):
-        for source in sources:
-            st.write(source["title"])
-            st.write(source["chunk_text"])
 
     with st.expander("View Retrieved Sources"):
         for i, source in enumerate(sources, 1):
