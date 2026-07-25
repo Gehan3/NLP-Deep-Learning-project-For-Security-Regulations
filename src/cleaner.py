@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 
-INPUT_FILE = Path("data/processed/iso27002_controls.json")
+INPUT_FILE = Path("data/processed/iso27002_controls2.json")
 OUTPUT_FILE = Path("data/cleaned/iso27002_cleaned.json")
 
 
@@ -121,7 +121,7 @@ def clean_controls():
 
             "standard": c["standard"],
 
-            "control_id": c["control_id"],
+           "control_id": str(c["control_id"]).strip(),#عupdate to remove zero from retrieval
 
             "title": c["title"],
 

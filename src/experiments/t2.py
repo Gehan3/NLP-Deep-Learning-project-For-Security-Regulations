@@ -1,7 +1,15 @@
+import sys
 from pathlib import Path
-import re
 
-from parser.base_parser import BaseParser
+current_dir = Path(__file__).resolve().parent
+src_dir = current_dir.parent
+parser_dir = src_dir / "parser"
+
+sys.path.append(str(src_dir))
+sys.path.append(str(parser_dir))
+
+import re
+from base_parser import BaseParser
 
 ISO_REGEX = re.compile(
     r"^([5-8]\.\d+)\s+([A-Za-z][A-Za-z0-9\s\-&,().'/]+)$"
@@ -29,3 +37,4 @@ print(f"Page: {first['page']}")
 print("=" * 80)
 
 print(first["raw_text"][-1200:])
+

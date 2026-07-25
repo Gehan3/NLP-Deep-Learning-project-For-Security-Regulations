@@ -288,32 +288,32 @@
     "page": 28
   },
   {
-    "parent_id": "5.1_control",
-    "control_id": "5.1",
+    "parent_id": "5.10_control",
+    "control_id": "5.10",
     "title": "Acceptable use of information and other associated assets",
     "section": "control",
     "text": "Rules for the acceptable use and procedures for handling information and other associated assets\nshould be identified, documented and implemented.",
     "page": 30
   },
   {
-    "parent_id": "5.1_purpose",
-    "control_id": "5.1",
+    "parent_id": "5.10_purpose",
+    "control_id": "5.10",
     "title": "Acceptable use of information and other associated assets",
     "section": "purpose",
     "text": "To ensure information and other associated assets are appropriately protected, used and handled.",
     "page": 30
   },
   {
-    "parent_id": "5.1_guidance",
-    "control_id": "5.1",
+    "parent_id": "5.10_guidance",
+    "control_id": "5.10",
     "title": "Acceptable use of information and other associated assets",
     "section": "guidance",
     "text": "Personnel and external party users using or having access to the organization’s information and other\nassociated assets should be made aware of the information security requirements for protecting and\nhandling the organization’s information and other associated assets. They should be responsible for\ntheir use of any information processing facilities.\nThe organization should establish a topic-specific policy on the acceptable use of information and other\nassociated assets and communicate it to anyone who uses or handles information and other associated\nassets. The topic-specific policy on acceptable use should provide clear direction on how individuals\nare expected to use information and other associated assets. The topic-specific policy should state:\na)\nexpected and unacceptable behaviours of individuals from an information security perspective;\nb)\npermitted and prohibited use of information and other associated assets;\nc)\nmonitoring activities being performed by the organization.\nAcceptable use procedures should be drawn up for the full information life cycle in accordance with its\nclassification (see 5.12) and determined risks. The following items should be considered:\na)\naccess restrictions supporting the protection requirements for each level of classification;\nb)\nmaintenance of a record of the authorized users of information and other associated assets;\nc)\nprotection of temporary or permanent copies of information to a level consistent with the\nprotection of the original information;\nd)\nstorage of assets associated with information in accordance with manufacturers’ specifications\n(see 7.8);\ne)\nclear marking of all copies of storage media (electronic or physical) for the attention of the\nauthorized recipient (see 7.10);\nf)\nauthorization of disposal of information and other associated assets and supported deletion\nmethod(s) (see 8.10).",
     "page": 30
   },
   {
-    "parent_id": "5.1_other_information",
-    "control_id": "5.1",
+    "parent_id": "5.10_other_information",
+    "control_id": "5.10",
     "title": "Acceptable use of information and other associated assets",
     "section": "other_information",
     "text": "It can be the case that the assets concerned do not directly belong to the organization, such as public\ncloud services. The use of such third-party assets and any assets of the organization associated with\nsuch external assets (e.g. information, software) should be identified as applicable and controlled,\nfor example, through agreements with cloud service providers. Care should also be taken when a\ncollaborative working environment is used.",
@@ -608,32 +608,32 @@
     "page": 43
   },
   {
-    "parent_id": "5.2_control",
-    "control_id": "5.2",
+    "parent_id": "5.20_control",
+    "control_id": "5.20",
     "title": "Addressing information security within supplier agreements",
     "section": "control",
     "text": "Relevant information security requirements should be established and agreed with each supplier based\non the type of supplier relationship.",
     "page": 45
   },
   {
-    "parent_id": "5.2_purpose",
-    "control_id": "5.2",
+    "parent_id": "5.20_purpose",
+    "control_id": "5.20",
     "title": "Addressing information security within supplier agreements",
     "section": "purpose",
     "text": "To maintain an agreed level of information security in supplier relationships.",
     "page": 45
   },
   {
-    "parent_id": "5.2_guidance",
-    "control_id": "5.2",
+    "parent_id": "5.20_guidance",
+    "control_id": "5.20",
     "title": "Addressing information security within supplier agreements",
     "section": "guidance",
     "text": "Supplier agreements should be established and documented to ensure that there is clear understanding\nbetween the organization and the supplier regarding both parties’ obligations to fulfil relevant\ninformation security requirements.\nThe following terms can be considered for inclusion in the agreements in order to satisfy the identified\ninformation security requirements:\na)\ndescription of the information to be provided or accessed and methods of providing or accessing\nthe information;\nb)\nclassification of information according to the organization’s classification scheme (see 5.10, 5.12,\n5.13);\nc)\nmapping between the organization’s own classification scheme and the classification scheme of the\nsupplier;\nd)\nlegal, statutory, regulatory and contractual requirements, including data protection, handling\nof personally identifiable information (PII), intellectual property rights and copyright and a\ndescription of how it will be ensured that they are met;\ne)\nobligation of each contractual party to implement an agreed set of controls, including access\ncontrol, performance review, monitoring, reporting and auditing, and the supplier’s obligations to\ncomply with the organization’s information security requirements;\nf)\nrules of acceptable use of information and other associated assets, including unacceptable use if\nnecessary;\ng)\nprocedures or conditions for authorization and removal of the authorization for the use of the\norganization’s information and other associated assets by supplier personnel (e.g. through an\nexplicit list of supplier personnel authorized to use the organization’s information and other\nassociated assets);\nh)\ninformation security requirements regarding the supplier’s ICT infrastructure; in particular,\nminimum information security requirements for each type of information and type of access to\nserve as the basis for individual supplier agreements based on the organization’s business needs\nand risk criteria;\ni)\nindemnities and remediation for failure of contractor to meet requirements;\nj)\nincident management requirements and procedures (especially notification and collaboration\nduring incident remediation);\nk)\ntraining and awareness requirements for specific procedures and information security\nrequirements (e.g. for incident response, authorization procedures);\nl)\nrelevant provisions for sub-contracting, including the controls that need to be implemented, such\nas agreement on the use of sub-suppliers (e.g. requiring to have them under the same obligations of\nthe supplier, requiring to have a list of sub-suppliers and notification before any change);\nm) relevant contacts, including a contact person for information security issues;\nn)\nany screening requirements, where legally permissible, for the supplier’s personnel, including\nresponsibilities for conducting the screening and notification procedures if screening has not been\ncompleted or if the results give cause for doubt or concern;\no)\nthe evidence and assurance mechanisms of third-party attestations for relevant information\nsecurity requirements related to the supplier processes and an independent report on effectiveness\nof controls;\np)\nright to audit the supplier processes and controls related to the agreement;\nq)\nsupplier’s obligation to periodically deliver a report on the effectiveness of controls and agreement\non timely correction of relevant issues raised in the report;\nr)\ndefect resolution and conflict resolution processes;\ns)\nproviding backup aligned with the organization’s needs (in terms of frequency and type and\nstorage location);\nt)\nensuring the availability of an alternate facility (i.e. disaster recovery site) not subject to the same\nthreats as the primary facility and considerations for fall back controls (alternate controls) in the\nevent primary controls fail;\nu)\nhaving a change management process that ensures advance notification to the organization and\nthe possibility for the organization of not accepting changes;\nv)\nphysical security controls commensurate with the information classification;\nw) information transfer controls to protect the information during physical transfer or logical\ntransmission;\nx)\ntermination clauses upon conclusion of the agreement including records management, return of\nassets, secure disposal of information and other associated assets, and any ongoing confidentiality\nobligations;\ny)\nprovision of a method of securely destroying the organization’s information stored by the supplier\nas soon as it is no longer required;\nz)\nensuring, at the end of the contract, handover support to another supplier or to the organization\nitself.\nThe organization should establish and maintain a register of agreements with external parties (e.g.\ncontracts, memorandum of understanding, information-sharing agreements) to keep track of where\ntheir information is going. The organization should also regularly review, validate and update their\nagreements with external parties to ensure they are still required and fit for purpose with relevant\ninformation security clauses.",
     "page": 45
   },
   {
-    "parent_id": "5.2_other_information",
-    "control_id": "5.2",
+    "parent_id": "5.20_other_information",
+    "control_id": "5.20",
     "title": "Addressing information security within supplier agreements",
     "section": "other_information",
     "text": "The agreements can vary considerably for different organizations and among the different types\nof suppliers. Therefore, care should be taken to include all relevant requirements for addressing\ninformation security risks.\nFor details on supplier agreements, see ISO/IEC 27036 series. For cloud service agreements, see\nISO/IEC 19086 series.",
@@ -928,32 +928,32 @@
     "page": 58
   },
   {
-    "parent_id": "5.3_control",
-    "control_id": "5.3",
+    "parent_id": "5.30_control",
+    "control_id": "5.30",
     "title": "ICT readiness for business continuity",
     "section": "control",
     "text": "ICT readiness should be planned, implemented, maintained and tested based on business continuity\nobjectives and ICT continuity requirements.",
     "page": 58
   },
   {
-    "parent_id": "5.3_purpose",
-    "control_id": "5.3",
+    "parent_id": "5.30_purpose",
+    "control_id": "5.30",
     "title": "ICT readiness for business continuity",
     "section": "purpose",
     "text": "To ensure the availability of the organization’s information and other associated assets during\ndisruption.",
     "page": 58
   },
   {
-    "parent_id": "5.3_guidance",
-    "control_id": "5.3",
+    "parent_id": "5.30_guidance",
+    "control_id": "5.30",
     "title": "ICT readiness for business continuity",
     "section": "guidance",
     "text": "ICT readiness for business continuity is an important component in business continuity management\nand information security management to ensure that the organization’s objectives can continue to be\nmet during disruption.\nThe ICT continuity requirements are the outcome of the business impact analysis (BIA). The BIA process\nshould use impact types and criteria to assess the impacts over time resulting from the disruption of\nbusiness activities that deliver products and services. The magnitude and duration of the resulting\nimpact should be used to identify prioritized activities which should be assigned a recovery time\nobjective (RTO). The BIA should then determine which resources are needed to support prioritized\nactivities. An RTO should also be specified for these resources. A subset of these resources should\ninclude ICT services.\nThe BIA involving ICT services can be expanded to define performance and capacity requirements of\nICT systems and recovery point objectives (RPO) of information required to support activities during\ndisruption.\nBased on the outputs from the BIA and risk assessment involving ICT services, the organization should\nidentify and select ICT continuity strategies that consider options for before, during and after disruption.\nThe business continuity strategies can comprise one or more solutions. Based on the strategies, plans\nshould be developed, implemented and tested to meet the required availability level of ICT services and\nin the required time frames following interruption to, or failure of, critical processes.\nThe organization should ensure that:\na)\nan adequate organizational structure is in place to prepare for, mitigate and respond to a disruption\nsupported by personnel with the necessary responsibility, authority and competence;\nb)\nICT continuity plans, including response and recovery procedures detailing how the organization\nis planning to manage an ICT service disruption, are:\n1)\nregularly evaluated through exercises and tests;\n2)\napproved by management;\nc)\nICT continuity plans include the following ICT continuity information:\n1)\nperformance and capacity specifications to meet the business continuity requirements and\nobjectives as specified in the BIA;\n2)\nRTO of each prioritized ICT service and the procedures for restoring those components;\n3)\nRPO of the prioritized ICT resources defined as information and the procedures for restoring\nthe information.",
     "page": 58
   },
   {
-    "parent_id": "5.3_other_information",
-    "control_id": "5.3",
+    "parent_id": "5.30_other_information",
+    "control_id": "5.30",
     "title": "ICT readiness for business continuity",
     "section": "other_information",
     "text": "Managing ICT continuity forms a key part of business continuity requirements concerning availability\nto be able to:\na)\nrespond and recover from disruption to ICT services regardless of the cause;\nb)\nensure continuity of prioritized activities are supported by the required ICT services;\nc)\nrespond before a disruption to ICT services occurs, and upon detection of at least one incident that\ncan result in a disruption to ICT services.\nFurther guidance on ICT readiness for business continuity can be found in ISO/IEC 27031.\nFurther guidance on business continuity management systems can be found in ISO 22301 and ISO 22313.\nFurther guidance on BIA can be found in ISO/TS 22317.",
@@ -1728,32 +1728,32 @@
     "page": 85
   },
   {
-    "parent_id": "7.1_control",
-    "control_id": "7.1",
+    "parent_id": "7.10_control",
+    "control_id": "7.10",
     "title": "Storage media",
     "section": "control",
     "text": "Storage media should be managed through their life cycle of acquisition, use, transportation and\ndisposal in accordance with the organization’s classification scheme and handling requirements.",
     "page": 86
   },
   {
-    "parent_id": "7.1_purpose",
-    "control_id": "7.1",
+    "parent_id": "7.10_purpose",
+    "control_id": "7.10",
     "title": "Storage media",
     "section": "purpose",
     "text": "To ensure only authorized disclosure, modification, removal or destruction of information on storage\nmedia.",
     "page": 86
   },
   {
-    "parent_id": "7.1_guidance",
-    "control_id": "7.1",
+    "parent_id": "7.10_guidance",
+    "control_id": "7.10",
     "title": "Storage media",
     "section": "guidance",
     "text": "Removable storage media\nThe following guidelines for the management of removable storage media should be considered:\na)\nestablishing a topic-specific policy on the management of removable storage media and\ncommunicating such topic- specific policy to anyone who uses or handles removable storage media;\nb)\nwhere necessary and practical, requiring authorization for storage media to be removed from the\norganization and keeping a record of such removals in order to maintain an audit trail;\nc)\nstoring all storage media in a safe, secure environment according to their information classification\nand protecting them against environmental threats (such as heat, moisture, humidity, electronic\nfield or ageing), in accordance with manufacturers’ specifications;\nd)\nif information confidentiality or integrity are important considerations, using cryptographic\ntechniques to protect information on removable storage media;\ne)\nto mitigate the risk of storage media degrading while stored information is still needed, transferring\nthe information to fresh storage media before becoming unreadable;\nf)\nstoring multiple copies of valuable information on separate storage media to further reduce the\nrisk of coincidental information damage or loss;\ng)\nconsidering the registration of removable storage media to limit the chance for information loss;\nh)\nonly enabling removable storage media ports [e.g. secure digital (SD) card slots and universal serial\nbus (USB) ports] if there is an organizational reason for their use;\ni)\nwhere there is a need to use removable storage media, monitoring the transfer of information to\nsuch storage media;\nj)\ninformation can be vulnerable to unauthorized access, misuse or corruption during physical\ntransport, for instance when sending storage media via the postal service or via courier.\nIn this control, media includes paper documents. When transferring physical storage media, apply\nsecurity measures in 5.14.\nSecure reuse or disposal\nProcedures for the secure reuse or disposal of storage media should be established to minimize the\nrisk of confidential information leakage to unauthorized persons. The procedures for secure reuse or\ndisposal of storage media containing confidential information should be proportional to the sensitivity\nof that information. The following items should be considered:\na)\nif storage media containing confidential information need to be reused within the organization,\nsecurely deleting data or formatting the storage media before reuse (see 8.10);\nb)\ndisposing of storage media containing confidential information securely when not needed anymore\n(e.g. by destroying, shredding or securely deleting the content);\nc)\nhaving procedures in place to identify the items that can require secure disposal;\nd)\nmany organizations offer collection and disposal services for storage media. Care should be taken\nin selecting a suitable external party supplier with adequate controls and experience;\ne)\nlogging the disposal of sensitive items in order to maintain an audit trail;\nf)\nwhen accumulating storage media for disposal, giving consideration to the aggregation effect,\nwhich can cause a large quantity of non-sensitive information to become sensitive.\nA risk assessment should be performed on damaged devices containing sensitive data to determine\nwhether the items should be physically destroyed rather than sent for repair or discarded (see 7.14).",
     "page": 86
   },
   {
-    "parent_id": "7.1_other_information",
-    "control_id": "7.1",
+    "parent_id": "7.10_other_information",
+    "control_id": "7.10",
     "title": "Storage media",
     "section": "other_information",
     "text": "When confidential information on storage media is not encrypted, additional physical protection of the\nstorage media should be considered.",
@@ -2176,32 +2176,32 @@
     "page": 105
   },
   {
-    "parent_id": "8.1_control",
-    "control_id": "8.1",
+    "parent_id": "8.10_control",
+    "control_id": "8.10",
     "title": "Information deletion",
     "section": "control",
     "text": "Information stored in information systems, devices or in any other storage media should be deleted\nwhen no longer required.",
     "page": 107
   },
   {
-    "parent_id": "8.1_purpose",
-    "control_id": "8.1",
+    "parent_id": "8.10_purpose",
+    "control_id": "8.10",
     "title": "Information deletion",
     "section": "purpose",
     "text": "To prevent unnecessary exposure of sensitive information and to comply with legal, statutory,\nregulatory and contractual requirements for information deletion.",
     "page": 107
   },
   {
-    "parent_id": "8.1_guidance",
-    "control_id": "8.1",
+    "parent_id": "8.10_guidance",
+    "control_id": "8.10",
     "title": "Information deletion",
     "section": "guidance",
     "text": "General\nSensitive information should not be kept for longer than it is required to reduce the risk of undesirable\ndisclosure.\nWhen deleting information on systems, applications and services, the following should be considered:\na)\nselecting a deletion method (e.g. electronic overwriting or cryptographic erasure) in accordance\nwith business requirements and taking into consideration relevant laws and regulations;\nb)\nrecording the results of deletion as evidence;\nc)\nwhen using service suppliers of information deletion, obtaining evidence of information deletion\nfrom them.\nWhere third parties store the organization’s information on its behalf, the organization should consider\nthe inclusion of requirements on information deletion into the third-party agreements to enforce it\nduring and upon termination of such services.\nDeletion methods\nIn accordance with the organization’s topic-specific policy on data retention and taking into\nconsideration relevant legislation and regulations, sensitive information should be deleted when no\nlonger required, by:\na)\nconfiguring systems to securely destroy information when no longer required (e.g. after a defined\nperiod subject to the topic-specific policy on data retention or by subject access request);\nb)\ndeleting obsolete versions, copies and temporary files wherever they are located;\nc)\nusing approved, secure deletion software to permanently delete information to help ensure\ninformation cannot be recovered by using specialist recovery or forensic tools;\nd)\nusing approved, certified providers of secure disposal services;\ne)\nusing disposal mechanisms appropriate for the type of storage media being disposed of (e.g.\ndegaussing hard disk drives and other magnetic storage media).\nWhere cloud services are used, the organization should verify if the deletion method provided by the\ncloud service provider is acceptable, and if it is the case, the organization should use it, or request that\nthe cloud service provider delete the information. These deletion processes should be automated in\naccordance with topic-specific policies, when available and applicable. Depending on the sensitivity of\ninformation deleted, logs can track or verify that these deletion processes have happened.\nTo avoid the unintentional exposure of sensitive information when equipment is being sent back to\nvendors, sensitive information should be protected by removing auxiliary storages (e.g. hard disk\ndrives) and memory before equipment leaves the organization’s premises.\nConsidering that the secure deletion of some devices (e.g. smartphones) can only be achieved through\ndestruction or using the functions embedded in these devices (e.g. “restore factory settings”), the\norganization should choose the appropriate method according to the classification of information\nhandled by such devices.\nControl measures described in 7.14 should be applied to physically destroy the storage device and\nsimultaneously delete the information it contains.\nAn official record of information deletion is useful when analysing the cause of a possible information\nleakage event.",
     "page": 107
   },
   {
-    "parent_id": "8.1_other_information",
-    "control_id": "8.1",
+    "parent_id": "8.10_other_information",
+    "control_id": "8.10",
     "title": "Information deletion",
     "section": "other_information",
     "text": "Information on user data deletion in cloud services can be found in ISO/IEC 27017.\nInformation on deletion of PII can be found in ISO/IEC 27555.",
@@ -2496,32 +2496,32 @@
     "page": 120
   },
   {
-    "parent_id": "8.2_control",
-    "control_id": "8.2",
+    "parent_id": "8.20_control",
+    "control_id": "8.20",
     "title": "Networks security",
     "section": "control",
     "text": "Networks and network devices should be secured, managed and controlled to protect information in\nsystems and applications.",
     "page": 121
   },
   {
-    "parent_id": "8.2_purpose",
-    "control_id": "8.2",
+    "parent_id": "8.20_purpose",
+    "control_id": "8.20",
     "title": "Networks security",
     "section": "purpose",
     "text": "To protect information in networks and its supporting information processing facilities from\ncompromise via the network.",
     "page": 121
   },
   {
-    "parent_id": "8.2_guidance",
-    "control_id": "8.2",
+    "parent_id": "8.20_guidance",
+    "control_id": "8.20",
     "title": "Networks security",
     "section": "guidance",
     "text": "Controls should be implemented to ensure the security of information in networks and to protect\nconnected services from unauthorized access. In particular, the following items should be considered:\na)\nthe type and classification level of information that the network can support;\nb)\nestablishing responsibilities and procedures for the management of networking equipment and\ndevices;\nc)\nmaintaining up to date documentation including network diagrams and configuration files of\ndevices (e.g. routers, switches);\nd)\nseparating operational responsibility for networks from ICT system operations where appropriate\n(see 5.3);\ne)\nestablishing controls to safeguard the confidentiality and integrity of data passing over public\nnetworks, third-party networks or over wireless networks and to protect the connected systems\nand applications (see 5.22, 8.24, 5.14 and 6.6). Additional controls can also be required to maintain\nthe availability of the network services and computers connected to the network;\nf)\nappropriately logging and monitoring to enable recording and detection of actions that can affect,\nor are relevant to, information security (see 8.16 and 8.15);\ng)\nclosely coordinating network management activities both to optimize the service to the\norganization and to ensure that controls are consistently applied across the information processing\ninfrastructure;\nh)\nauthenticating systems on the network;\ni)\nrestricting and filtering systems connection to the network (e.g. using firewalls);\nj)\ndetecting, restricting and authenticating the connection of equipment and devices to the network;\nk)\nhardening of network devices;\nl)\nsegregating network administration channels from other network traffic;\nm) temporarily isolating critical subnetworks (e.g. with drawbridges) if the network is under attack;\nn)\ndisabling vulnerable network protocols.\nThe organization should ensure that appropriate security controls are applied to the use of virtualized\nnetworks. Virtualized networks also cover software-defined networking (SDN, SD-WAN). Virtualized\nnetworks can be desirable from a security viewpoint, since they can permit logical separation of\ncommunication taking place over physical networks, particularly for systems and applications that are\nimplemented using distributed computing.",
     "page": 121
   },
   {
-    "parent_id": "8.2_other_information",
-    "control_id": "8.2",
+    "parent_id": "8.20_other_information",
+    "control_id": "8.20",
     "title": "Networks security",
     "section": "other_information",
     "text": "Additional information on network security can be found in the ISO/IEC 27033 series.\nMore information concerning virtualized networks can be found in ISO/IEC TS 23167.",
@@ -2816,32 +2816,32 @@
     "page": 134
   },
   {
-    "parent_id": "8.3_control",
-    "control_id": "8.3",
+    "parent_id": "8.30_control",
+    "control_id": "8.30",
     "title": "Outsourced development",
     "section": "control",
     "text": "The organization should direct, monitor and review the activities related to outsourced system\ndevelopment.",
     "page": 136
   },
   {
-    "parent_id": "8.3_purpose",
-    "control_id": "8.3",
+    "parent_id": "8.30_purpose",
+    "control_id": "8.30",
     "title": "Outsourced development",
     "section": "purpose",
     "text": "To ensure information security measures required by the organization are implemented in outsourced\nsystem development.",
     "page": 136
   },
   {
-    "parent_id": "8.3_guidance",
-    "control_id": "8.3",
+    "parent_id": "8.30_guidance",
+    "control_id": "8.30",
     "title": "Outsourced development",
     "section": "guidance",
     "text": "Where system development is outsourced, the organization should communicate and agree\nrequirements and expectations, and continually monitor and review whether the delivery of outsourced\nwork meets these expectations. The following points should be considered across the organization’s\nentire external supply chain:\na)\nlicensing agreements, code ownership and intellectual property rights related to the outsourced\ncontent (see 5.32);\nb)\ncontractual requirements for secure design, coding and testing practices (see 8.25 to 8.29);\nc)\nprovision of the threat model to consider by external developers;\nd)\nacceptance testing for the quality and accuracy of the deliverables (see 8.29);\ne)\nprovision of evidence that minimum acceptable levels of security and privacy capabilities are\nestablished (e.g. assurance reports);\nf)\nprovision of evidence that sufficient testing has been applied to guard against the presence of\nmalicious content (both intentional and unintentional) upon delivery;\ng)\nprovision of evidence that sufficient testing has been applied to guard against the presence of\nknown vulnerabilities;\nh)\nescrow agreements for the software source code (e.g. if the supplier goes out of business);\ni)\ncontractual right to audit development processes and controls;\nj)\nsecurity requirements for the development environment (see 8.31);\nk)\ntaking consideration of applicable legislation (e.g. on protection of personal data).",
     "page": 136
   },
   {
-    "parent_id": "8.3_other_information",
-    "control_id": "8.3",
+    "parent_id": "8.30_other_information",
+    "control_id": "8.30",
     "title": "Outsourced development",
     "section": "other_information",
     "text": "Further information on supplier relationships can be found in the ISO/IEC 27036 series.",

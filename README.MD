@@ -17,6 +17,18 @@ The project is being developed in multiple stages.
 
 Currently, we completed the **document preprocessing pipeline**:
 
+How the Rag work 
+pip install -r requirements.txt
+python src/experiments/t2.py
+python src/exporter.py
+python src/cleaner.py
+python src/chunker.py
+python src/vector_representation.py
+python src/chroma_db.py
+python src/retriever.py
+python src/prompt.py
+python src/app.py
+python -m streamlit run app.py
 ```
 PDF Documents
 

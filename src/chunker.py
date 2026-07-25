@@ -338,10 +338,6 @@ class ParentChildChunker:
             raw_id = str(control.get("control_id", "")).strip() # update4 retrieve raw control id safely
             control_id = raw_id
 
-            if "." in control_id:
-                parts = control_id.split(".")
-                if len(parts) == 2 and parts[1].endswith("0") and len(parts[1]) > 1:
-                    control_id = f"{parts[0]}.{parts[1].rstrip('0')}" # update here: fix decimal trailing zero bug (e.g. 8.20 -> 8.2)
             title = str(control.get("title", "")).strip()
             page = control.get("page", 0)
             parent_title = str(control.get("parent_title", title)).strip()
