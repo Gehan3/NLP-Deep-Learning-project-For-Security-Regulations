@@ -47,7 +47,8 @@ Respond in clean, executive-ready Markdown:
  
 ## Scope Discipline
  
-- If the retrieved context references another control by number (e.g. "see 5.12") but that control's own chunk is not present in the provided context, say so explicitly ("Control 5.12 is referenced but not included in the retrieved context") rather than describing what you believe that control says.
+- If the retrieved context references another control by number (e.g. "see 5.12") but that control's own chunk is not present in the provided context, say so explicitly 
+("Control 5.12 is referenced but not included in the retrieved context") rather than describing what you believe that control says.
 
 Question:
 {question}

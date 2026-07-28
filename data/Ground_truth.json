@@ -1,0 +1,117 @@
+[
+  {
+    "scenario": "Due to password reuse and absent rate-limiting controls, credential stuffing attacks may compromise customer accounts on internet banking channels.",
+    "expected_controls": "5.17 Authentication information | 8.5 Secure authentication"
+  },
+  {
+    "scenario": "Due to manual breach escalation processes, mandatory personal data breach notifications to authorities may miss the statutory 72-hour regulatory reporting window.",
+    "expected_controls": "5.24 Information security incident management planning and preparation | 5.26 Response to information security incidents | 5.34 Privacy and protection of PII"
+  },
+  {
+    "scenario": "Security controls may not meet international cybersecurity requirements, resulting in compliance gaps.",
+    "expected_controls": "5.31 Legal, statutory, regulatory and contractual requirements | 5.36 Compliance with policies and standards for information security"
+  },
+  {
+    "scenario": "Due to the absence of Runtime Application Self-Protection (RASP) on mobile endpoints, banking Trojans may overlay UI elements and capture OTPs and login tokens.",
+    "expected_controls": "8.1 User endpoint devices | 8.7 Protection against malware"
+  },
+  {
+    "scenario": "Failure to appoint and register a Data Protection Officer may result in non-compliance with privacy regulations.",
+    "expected_controls": "5.2 Information security roles and responsibilities | 5.34 Privacy and protection of PII"
+  },
+   {
+    "scenario": "Due to the absence of a formally appointed and registered Data Protection Officer (DPO), privacy governance may fail regulatory compliance audits.",
+    "expected_controls": "5.2 Information security roles and responsibilities | 5.34 Privacy and protection of PII"
+   },
+    {
+    "scenario": "Due to flawed risk scoring logic or inaccurate formulas in executive dashboards, executive risk heatmaps may distort risk exposure, causing poor risk decisions.",
+    "expected_controls": "5.1 Policies for information security | 5.35 Independent review of information security"
+   },
+    {
+    "scenario": "Unauthorized access or insider escalation leading to unauthorized users gaining elevated privileges , which may result in the compromise of sensitive data, unauthorized system modifications, disruption of critical services, and potential regulatory non-compliance",
+    "expected_controls": "8.2 — Privileged Access Rights|5.15 — Access Control|5.18 — Privileged access"   },
+    {
+    "scenario": "Malware encrypts business-critical data causing service disruption",
+    "expected_controls": "5.29 — Protection during Disruption |8.13 — Information backup|8.7 — Protection against malware"
+   },
+  {
+    "scenario": "Employees may disclose credentials through phishing emails leading to unauthorized access.",
+    "expected_controls": "5.17 Authentication information | 6.3 Information security awareness, education and training | 8.23 Web filtering"
+   },
+   {
+    "scenario": "Due to insufficient employee security awareness, sophisticated phishing campaigns may deceive staff into disclosing credentials, enabling unauthorized network access.",
+    "expected_controls": "5.17 Authentication information | 6.3 Information security awareness, education and training | 8.23 Web filtering"
+   },
+   {
+    "scenario": "Malware encrypts business-critical data causing service disruption",
+    "expected_controls": "8.7 Protection against malware | 8.8 Management of technical vulnerabilities | 8.13 Information backup"
+   },
+   {
+    "scenario": "Due to unpatched end-user endpoints, ransomware infections may spread across corporate devices, resulting in critical data encryption, operational outage, and extortion risks",
+    "expected_controls": "8.7 Protection against malware | 8.8 Management of technical vulnerabilities | 8.13 Information backup"
+   },
+   {
+    "scenario": "Unauthorized users gain elevated privileges",
+    "expected_controls": "5.15 Access rights | 5.18 Access rights | 8.2 Privileged access rights"
+   },
+   {
+    "scenario": "Due to excessive user permissions and weak access reviews, unauthorized personnel may escalate privileges, compromising sensitive Active Directory domain resources.",
+    "expected_controls": "5.15 Access rights | 5.18 Access rights | 8.2 Privileged access rights"
+   },
+   {
+    "scenario": "Failure to comply with CBE or PCI DSS requirements",
+    "expected_controls": "5.31 Legal, statutory, regulatory and contractual requirements | 5.36 Compliance with policies and standards for information security"
+   },
+   {
+    "scenario": "Due to the lack of continuous regulatory monitoring, non-compliance with CBE, PCI DSS, or international mandates may occur, incurring severe penalties and reputational loss.",
+    "expected_controls": "5.31 Legal, statutory, regulatory and contractual requirements | 5.36 Compliance with policies and standards for information security"
+   },
+   {
+    "scenario": "Sensitive customer data may be exposed",
+    "expected_controls": "5.12 Classification of information | 8.12 Data leakage prevention | 8.24 Use of cryptography"
+   },
+   {
+    "scenario": "Due to misconfigured database access permissions, sensitive customer PII may be exposed or exfiltrated, triggering major privacy breaches and statutory fines.",
+    "expected_controls": "5.12 Classification of information | 8.12 Data leakage prevention | 8.24 Use of cryptography"
+   },
+   {
+    "scenario": "Vendor compromise affecting bank data",
+    "expected_controls": "5.19 Information security in supplier relationships | 5.20 Addressing information security within supplier agreements | 5.21 Managing information security in the ICT supply chain"
+   },
+   {
+    "scenario": "Due to weak third-party vendor security postures, supply chain compromises may exploit vendor portals, leaking bank data and breaching contractual SLAs.",
+    "expected_controls": "5.19 Information security in supplier relationships | 5.20 Addressing information security within supplier agreements | 5.21 Managing information security in the ICT supply chain"
+   },
+   {
+    "scenario": "Inability to restore critical systems after an incident",
+    "expected_controls": "5.29 Information security during disruption | 5.30 ICT readiness for business continuity | 8.13 Information backup"
+   },
+   {
+    "scenario": "Due to unvalidated backup procedures and restoration testing gaps, system restoration during disasters may fail, causing permanent data loss and extended downtime.",
+    "expected_controls": "5.29 Information security during disruption | 5.30 ICT readiness for business continuity | 8.13 Information backup"
+   },
+   {
+    "scenario": "Employees misuse authorized access",
+    "expected_controls": "6.3 Information security awareness, education and training | 6.5 Responsibilities after termination or change of employment | 8.16 Monitoring activities"
+   },
+   {
+    "scenario": "Due to excessive administrative privileges and limited behavioral analytics, insider threat actors may abuse access rights to conduct fraud, data exfiltration, or sabotage.",
+    "expected_controls": "6.3 Information security awareness, education and training | 6.5 Responsibilities after termination or change of employment | 8.16 Monitoring activities"
+   },
+   {
+    "scenario": "Attackers exploit known vulnerabilities",
+    "expected_controls": "8.8 Management of technical vulnerabilities | 8.19 Installation of software on operational systems"
+   },
+   {
+    "scenario": "Due to missing security updates and delayed patch deployment cycles, external threat actors may exploit known vulnerabilities on production servers to gain control.",
+    "expected_controls": "8.8 Management of technical vulnerabilities | 8.19 Installation of software on operational systems" 
+  },
+   {
+    "scenario": "Due to missing or outdated incident response procedures, security breaches may not be contained promptly, causing escalated business impact and prolonged recovery times.",
+    "expected_controls": "5.24 Information security incident management planning and preparation | 5.25 Assessment and decision on information security events | 5.26 Response to information security incidents"
+   },
+    {
+      "scenario": "Security incidents are not contained in a timely manner",
+      "expected_controls": "5.24 Information security incident management planning and preparation | 5.25 Assessment and decision on information security events | 5.26 Response to information security incidents"
+    }
+]

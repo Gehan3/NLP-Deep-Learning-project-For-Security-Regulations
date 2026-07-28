@@ -24,7 +24,7 @@ def generate_chunk_embeddings(chunks_df):
     )
     
     return chunk_embeddings
-
+#Problem 3: BM25 tokenization is too naive for a security/c compliance domain
 def retrieve_hybrid_bge(query, chunks_df, chunk_embeddings, bm25_index, alpha=0.6, k=3):
     tokenized_query = query.lower().split()
     bm25_raw_scores = bm25_index.get_scores(tokenized_query)
