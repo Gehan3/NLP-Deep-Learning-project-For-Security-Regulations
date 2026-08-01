@@ -31,6 +31,8 @@ python src/prompt.py
 python src/app.py
 python -m streamlit run app.py
 ```
+trial in 
+chatbot,main,lexical
 PDF Documents
 
         ↓
