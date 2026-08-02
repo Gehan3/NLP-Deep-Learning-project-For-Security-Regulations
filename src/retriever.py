@@ -3,38 +3,44 @@ from __future__ import annotations
 import math
 import os
 from pathlib import Path
+from typing import Any
 
 import chromadb
 from chromadb.config import Settings
 from sentence_transformers import CrossEncoder, SentenceTransformer
+from torch.nn import Identity
 
 
 COLLECTION_NAME = "iso27002_controls"
 MODEL_NAME = "BAAI/bge-m3"
 RERANKER_MODEL_NAME = "BAAI/bge-reranker-large"
 
+DEFAULT_MIN_EMBEDDING_SCORE = float(
+    os.getenv("ISO27002_MIN_EMBEDDING_SCORE", "0.45")
+)
 
-# update for retriever
+DEFAULT_MIN_RERANK_SCORE = float(
+    os.getenv("ISO27002_MIN_RERANK_SCORE", "0.05")
+)
+
+
 def resolve_db_path() -> Path:
-
     env_path = os.getenv("ISO27002_DB_PATH", "").strip()
 
     if env_path:
         return Path(env_path).expanduser().resolve()
 
-    # retriever.py is inside project/src/
     project_root = Path(__file__).resolve().parent.parent
-    project_db = project_root / "iso27002_chroma_db"
+    project_db_path = project_root / "iso27002_chroma_db"
 
-    if project_db.exists():
-        return project_db.resolve()
+    if project_db_path.exists():
+        return project_db_path.resolve()
 
     return (Path.cwd() / "iso27002_chroma_db").resolve()
 
 
 class ISO27002Retriever:
     def __init__(self):
-        # update for retriever
         self.db_path = resolve_db_path()
 
         print(f"Current working directory: {Path.cwd()}")
@@ -46,7 +52,6 @@ class ISO27002Retriever:
             settings=Settings(anonymized_telemetry=False),
         )
 
-        # update for retriever
         available_collections = self.client.list_collections()
 
         collection_names = [
@@ -77,14 +82,11 @@ class ISO27002Retriever:
 
         metadata = self.collection.metadata or {}
 
-        # Chroma uses hnsw:space, not hf:space.
-        self.space = str(metadata.get("hnsw:space", "l2")).lower()
+        self.space = str(
+            metadata.get("hnsw:space", "l2")
+        ).lower()
 
         if self.space not in {"cosine", "l2", "ip"}:
-            print(
-                f"WARNING: unrecognized hnsw:space '{self.space}', "
-                "assuming l2"
-            )
             self.space = "l2"
 
         print(f"Collection distance space: {self.space}")
@@ -94,39 +96,41 @@ class ISO27002Retriever:
 
     @staticmethod
     def _sigmoid(value: float) -> float:
-        """Convert a raw reranker logit into a bounded diagnostic score."""
         if value >= 0:
             return 1.0 / (1.0 + math.exp(-value))
+
         exp_value = math.exp(value)
         return exp_value / (1.0 + exp_value)
 
     def _distance_to_score(self, distance: float) -> float:
-        """
-        Convert Chroma distance into a readable diagnostic similarity score.
-
-        This value is not treated as a calibrated relevance probability. The
-        L2 conversion is cosine-equivalent only when both stored and query
-        embeddings were normalized during indexing and querying.
-        """
         if self.space in {"cosine", "ip"}:
             return 1.0 - distance
+
         if self.space == "l2":
             return 1.0 - (distance / 2.0)
+
         return 1.0 - distance
 
-    def search(self, query: str, k: int = 12) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        k: int = 12,
+    ) -> list[dict[str, Any]]:
         clean_query = query.strip()
+
         if not clean_query:
             return []
 
         collection_size = self.collection.count()
+
         if collection_size <= 0:
             return []
 
-        requested_k = max(1, min(int(k), collection_size))
+        requested_k = max(
+            1,
+            min(int(k), collection_size),
+        )
 
-        # update for retriever: use the same normalized BGE-M3 query embedding
-        # configuration expected by a normalized Chroma collection.
         query_embedding = self.model.encode(
             clean_query,
             normalize_embeddings=True,
@@ -135,10 +139,18 @@ class ISO27002Retriever:
         results = self.collection.query(
             query_embeddings=[query_embedding],
             n_results=requested_k,
-            include=["documents", "metadatas", "distances"],
+            include=[
+                "documents",
+                "metadatas",
+                "distances",
+            ],
         )
 
-        if not results or not results.get("ids") or not results["ids"][0]:
+        if (
+            not results
+            or not results.get("ids")
+            or not results["ids"][0]
+        ):
             return []
 
         ids = results["ids"][0]
@@ -147,24 +159,56 @@ class ISO27002Retriever:
         distances = results.get("distances", [[]])[0]
 
         formatted_results: list[dict[str, Any]] = []
+
         for index, chunk_id in enumerate(ids):
-            document = documents[index] if index < len(documents) else ""
-            metadata = metadatas[index] if index < len(metadatas) else {}
-            distance = float(distances[index]) if index < len(distances) else 0.0
+            document = (
+                documents[index]
+                if index < len(documents)
+                else ""
+            )
+
+            metadata = (
+                metadatas[index]
+                if index < len(metadatas)
+                else {}
+            )
+
+            distance = (
+                float(distances[index])
+                if index < len(distances)
+                else 0.0
+            )
+
             metadata = metadata or {}
+
+            embedding_score = self._distance_to_score(
+                distance
+            )
 
             formatted_results.append(
                 {
                     "chunk_id": str(chunk_id),
                     "text": str(document or ""),
-                    "control_id": str(metadata.get("control_id", "")),
-                    "section": str(metadata.get("section", "")),
-                    "parent_id": str(metadata.get("parent_id", "")),
-                    "metadata_context": str(metadata.get("metadata_context", "")),
+                    "control_id": str(
+                        metadata.get("control_id", "")
+                    ),
+                    "section": str(
+                        metadata.get("section", "")
+                    ),
+                    "parent_id": str(
+                        metadata.get("parent_id", "")
+                    ),
+                    "metadata_context": str(
+                        metadata.get(
+                            "metadata_context",
+                            "",
+                        )
+                    ),
                     "distance": distance,
-                    "embedding_score": float(self._distance_to_score(distance)),
-                    # Backward-compatible field used by existing UI/code.
-                    "score": float(self._distance_to_score(distance)),
+                    "embedding_score": float(
+                        embedding_score
+                    ),
+                    "score": float(embedding_score),
                 }
             )
 
@@ -179,117 +223,217 @@ class ISO27002Retriever:
         if not initial_results:
             return []
 
-        pairs = [[query, result["text"]] for result in initial_results]
-        raw_scores = self.reranker.predict(pairs)
+        pairs = [
+            [query, result["text"]]
+            for result in initial_results
+        ]
 
-        # update for retriever: preserve the raw BGE reranker logit for sorting,
-        # and expose a sigmoid score only for diagnostics/optional filtering.
+        raw_scores = self.reranker.predict(
+            pairs,
+            activation_fn=Identity(),
+        )
+
         reranked: list[dict[str, Any]] = []
-        for result, raw_score in zip(initial_results, raw_scores):
+
+        for result, raw_score in zip(
+            initial_results,
+            raw_scores,
+        ):
             row = dict(result)
-            logit = float(raw_score)
-            row["rerank_logit"] = logit
-            row["rerank_score"] = self._sigmoid(logit)
+
+            rerank_logit = float(raw_score)
+            rerank_score = self._sigmoid(
+                rerank_logit
+            )
+
+            row["rerank_logit"] = rerank_logit
+            row["rerank_score"] = rerank_score
+
             reranked.append(row)
 
-        reranked.sort(key=lambda row: row["rerank_logit"], reverse=True)
+        reranked.sort(
+            key=lambda row: row["rerank_logit"],
+            reverse=True,
+        )
 
-        for rank, row in enumerate(reranked, start=1):
+        for rank, row in enumerate(
+            reranked,
+            start=1,
+        ):
             row["rerank_rank"] = rank
 
         if top_k is None:
             return reranked
-        return reranked[: max(0, int(top_k))]
+
+        return reranked[:max(0, int(top_k))]
 
     def build_context(
         self,
         question: str,
         k: int = 12,
         max_sources: int = 4,
-        min_rerank_score: float | None = None,
+        min_embedding_score: float = DEFAULT_MIN_EMBEDDING_SCORE,
+        min_rerank_score: float = DEFAULT_MIN_RERANK_SCORE,
         min_score_ratio: float | None = None,
     ) -> tuple[str, list[dict[str, Any]]]:
-        
         clean_question = question.strip()
+
         if not clean_question:
             return "", []
 
-        initial_rows = self.search(clean_question, k=k)
+        initial_rows = self.search(
+            clean_question,
+            k=k,
+        )
+
         if not initial_rows:
             return "", []
 
-        # update for retriever: rerank the entire candidate pool first. Do not
-        # truncate to max_sources before filtering and deduplication.
         reranked_rows = self.rerank_results(
             clean_question,
             initial_rows,
             top_k=None,
         )
 
-        best_normalized_score = (
-            reranked_rows[0]["rerank_score"] if reranked_rows else None
+        if not reranked_rows:
+            return "", []
+
+        best_result = reranked_rows[0]
+
+        best_embedding_score = float(
+            best_result.get(
+                "embedding_score",
+                float("-inf"),
+            )
         )
+
+        best_rerank_score = float(
+            best_result.get(
+                "rerank_score",
+                0.0,
+            )
+        )
+
+        if (
+            best_embedding_score
+            < min_embedding_score
+            and best_rerank_score
+            < min_rerank_score
+        ):
+            return "", []
 
         selected: list[dict[str, Any]] = []
         seen_chunks: set[str] = set()
         seen_texts: set[str] = set()
 
         for row in reranked_rows:
-            normalized_score = float(row.get("rerank_score", 0.0))
+            embedding_score = float(
+                row.get(
+                    "embedding_score",
+                    float("-inf"),
+                )
+            )
+
+            rerank_score = float(
+                row.get(
+                    "rerank_score",
+                    0.0,
+                )
+            )
 
             if (
-                min_rerank_score is not None
-                and normalized_score < min_rerank_score
+                embedding_score
+                < min_embedding_score
+                and rerank_score
+                < min_rerank_score
             ):
                 continue
 
             if (
                 min_score_ratio is not None
-                and best_normalized_score is not None
-                and normalized_score < best_normalized_score * min_score_ratio
+                and best_rerank_score > 0
+                and rerank_score
+                < best_rerank_score
+                * min_score_ratio
             ):
                 continue
 
-            chunk_key = str(row.get("chunk_id", ""))
-            document_text = str(row.get("text", "")).strip()
-            normalized_text_key = " ".join(document_text.casefold().split())
+            chunk_key = str(
+                row.get("chunk_id", "")
+            ).strip()
+
+            document_text = str(
+                row.get("text", "")
+            ).strip()
+
+            normalized_text_key = " ".join(
+                document_text.casefold().split()
+            )
 
             if not document_text:
                 continue
-            if chunk_key in seen_chunks or normalized_text_key in seen_texts:
+
+            if chunk_key in seen_chunks:
+                continue
+
+            if normalized_text_key in seen_texts:
                 continue
 
             selected_row = dict(row)
+
             selected_row["selected"] = True
             selected_row["selection_reason"] = (
-                f"Top reranked result (rank {row.get('rerank_rank', '?')})"
+                f"Relevant reranked result "
+                f"(rank {row.get('rerank_rank', '?')})"
             )
+
             selected.append(selected_row)
+
             seen_chunks.add(chunk_key)
             seen_texts.add(normalized_text_key)
 
-            # update for retriever: stop only after valid, unique sources have
-            # been selected, allowing lower-ranked candidates to backfill.
-            if len(selected) >= max(1, int(max_sources)):
+            if len(selected) >= max(
+                1,
+                int(max_sources),
+            ):
                 break
 
         if not selected:
             return "", []
 
         context_blocks: list[str] = []
-        for source_number, row in enumerate(selected, start=1):
-            control_number = row.get("control_id") or "Not specified"
-            section_name = (row.get("section") or "Not specified").upper()
-            parent_id = row.get("parent_id") or "Not specified"
-            text_content = row.get("text", "")
 
-            # update for retriever: the marker now exactly matches the prompt's
-            # required citation syntax: [SOURCE N].
+        for source_number, row in enumerate(
+            selected,
+            start=1,
+        ):
+            control_number = (
+                row.get("control_id")
+                or "Not specified"
+            )
+
+            section_name = (
+                row.get("section")
+                or "Not specified"
+            ).upper()
+
+            parent_id = (
+                row.get("parent_id")
+                or "Not specified"
+            )
+
+            text_content = str(
+                row.get("text", "")
+            ).strip()
+
             context_blocks.append(
                 "\n".join(
                     [
                         f"[SOURCE {source_number}]",
-                        f"ISO 27002 Control Number: {control_number}",
+                        (
+                            "ISO 27002 Control Number: "
+                            f"{control_number}"
+                        ),
                         f"Section: {section_name}",
                         f"Parent ID: {parent_id}",
                         f"Content: {text_content}",
@@ -297,38 +441,34 @@ class ISO27002Retriever:
                 )
             )
 
-        return "\n\n".join(context_blocks).strip(), selected
+        context = "\n\n".join(
+            context_blocks
+        ).strip()
+
+        return context, selected
 
 
 if __name__ == "__main__":
     retriever = ISO27002Retriever()
 
-    print("\n--- Diagnostic Check ---")
-    records = retriever.collection.get(include=["documents", "metadatas"])
-    print(f"Total records in DB: {len(records['ids'])}")
-    print(f"Collection hnsw:space in use: {retriever.space}")
+    relevant_question = "unauthorized access"
 
-    seen_documents: set[str] = set()
-    duplicate_count = 0
-    for document in records.get("documents", []):
-        if document in seen_documents:
-            duplicate_count += 1
-        else:
-            seen_documents.add(document)
+    relevant_context, relevant_sources = retriever.build_context(
+        relevant_question
+    )
 
-    print(f"Number of exact duplicate documents found in DB: {duplicate_count}")
-    print("-" * 30)
+    print("\nRelevant query:")
+    print(f"Question: {relevant_question}")
+    print(relevant_context)
+    print(f"Sources: {len(relevant_sources)}")
 
-    sample_question = "unauthorized access"
-    context, sources = retriever.build_context(sample_question)
-    print("\n--- Built Context (relevant question) ---")
-    print(context)
-    print(f"\nTotal sources selected: {len(sources)}")
+    outside_question = "Ml definition"
 
-    for number, source in enumerate(sources, start=1):
-        print(
-            f"[SOURCE {number}] Control {source['control_id']} "
-            f"({source['section']}) | distance={source['distance']:.4f} "
-            f"| rerank_logit={source['rerank_logit']:.4f} "
-            f"| rerank_score={source['rerank_score']:.4f}"
-        )
+    outside_context, outside_sources = retriever.build_context(
+        outside_question
+    )
+
+    print("\nOutside-scope query:")
+    print(f"Question: {outside_question}")
+    print(repr(outside_context))
+    print(f"Sources: {len(outside_sources)}")
