@@ -4,9 +4,9 @@ import numpy as np
 import os
 from pathlib import Path
 
-#from retriever import ISO27002Retriever 
-from lexical_representation import LexicalRetriever
-retriever = LexicalRetriever()
+from retriever import ISO27002Retriever 
+#from lexical_representation import LexicalRetriever
+retriever = ISO27002Retriever()
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(current_dir, "..", "data", "Ground_truth.json")
@@ -76,8 +76,8 @@ def evaluate_retrieval(retriever, ground_truth_data, k=3):
 
 if __name__ == "__main__":
    
-    #retriever = ISO27002Retriever()
-    retriever = LexicalRetriever()
+    retriever = ISO27002Retriever()
+    #retriever = LexicalRetriever()
     
 
     evaluation_df = evaluate_retrieval(retriever, ground_truth_data, k=3)

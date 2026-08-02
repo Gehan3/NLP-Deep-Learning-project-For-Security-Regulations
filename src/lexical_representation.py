@@ -7,17 +7,33 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from rank_bm25 import BM25Okapi
+from nltk.stem import PorterStemmer
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 _CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 _CHILDREN_PATH = os.path.join(_CURRENT_DIR, "..", "data", "chunks", "iso27002_children.json")
 
 
-# Simple tokeniser shared by TF-IDF and BM25
-def tokenize(text: str) -> list[str]:
-    text = text.lower()
-    text = re.sub(r"[^\w\s]", " ", text)      # remove punctuation
-    return text.split()
+stemmer = PorterStemmer()
+CUSTOM_STOP_WORDS = ENGLISH_STOP_WORDS.union({
+    'shall', 'should', 'may', 'ensure', 'also', 'use', 'using', 'include', 
+    'including', 'the', 'and', 'to', 'of', 'in', 'for', 'is', 'on', 'that', 'by'
+})
 
+def tokenize(text: str) -> list[str]:
+    if not isinstance(text, str):
+        return []
+    text = text.lower()
+    text = re.sub(r"[^\w\s]", " ", text)      # إزالة علامات الترقيم
+    tokens = text.split()
+    
+    # تنقية الكلمات المهملة وتطبيق التجذير (Stemming)
+    stemmed_tokens = [
+        stemmer.stem(word) 
+        for word in tokens 
+        if word not in CUSTOM_STOP_WORDS and len(word) > 2
+    ]
+    return stemmed_tokens
 class LexicalRetriever:
 
 
@@ -49,6 +65,8 @@ class LexicalRetriever:
             analyzer=tokenize,
             sublinear_tf=True,
             norm="l2",
+            ngram_range=(1, 2),
+            min_df=1
         )
         # fit_transform on the raw texts; the analyzer calls tokenize() internally
         self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(self.corpus_texts)

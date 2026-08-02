@@ -28,9 +28,7 @@ def create_vector_store():
 
     chunks_df, _ = vector_representation.get_vector_store_data()
     #Problem 1: Metadata is NOT embedded — control IDs are invisible to semantic search
-    # Build enriched text that embeds metadata into the vector representation.
     enriched_texts = [build_embed_text(row) for _, row in chunks_df.iterrows()]
-    # Re-embed using the enriched text so the vectors carry structural context.
     print("Re-embedding with metadata-enriched text...")
     chunk_embeddings = vector_representation.embedding_model.encode(
         enriched_texts,

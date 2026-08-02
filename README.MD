@@ -26,10 +26,13 @@ python src/chunker.py
 python src/vector_representation.py
 python src/chroma_db.py
 python src/retriever.py
+python src/evaluate.py
 python src/prompt.py
 python src/app.py
 python -m streamlit run app.py
 ```
+trial in 
+chatbot,main,lexical
 PDF Documents
 
         ↓
@@ -124,9 +127,13 @@ Nlp_Proj/
 │   └── cleaner.py
 │
 │          Cleans extracted data and separates sections
-│
+│   
+│   ├── retriever.py       # يحتوي على كلاس البحث والـ Reranker
+│   ├── prompt.py          # يحتوي على بناء الـ Prompt
+│   └── chatbot.py         # الملف الجديد الذي يجمع الكل ويشغل الـ LLM
 │
 └── requirements.txt
+
 ```
 
 ---
@@ -550,7 +557,8 @@ Children per section:
 ⬜ Embeddings
 ⬜ ChromaDB Vector Database
 ⬜ Retrieval System
-⬜ LLM Integration
+
+⬜ LLM Integration(Prompt+chatbot)
 ⬜ Final Chatbot
 
 ---

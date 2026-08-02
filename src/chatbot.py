@@ -1,0 +1,47 @@
+from prompt import answer_question  
+
+def main():
+    print("=" * 80)
+    print("🤖 ISO/IEC 27002:2022 Compliance Chatbot (Powered by BGE-M3, Reranker & OpenRouter)")
+    print("Type 'exit' or 'quit' to end the session.")
+    print("=" * 80)
+
+    while True:
+       
+        question = input("\n📝 Enter your compliance question: ").strip()
+
+        # أمر الخروج
+        if question.lower() in ["exit", "quit"]:
+            print("\nGoodbye! Stay secure and compliant. 🔒")
+            break
+
+        if not question:
+            print("Please enter a valid question.")
+            continue
+
+        print("\n⏳ Searching controls, reranking, and generating auditor-grade answer...")
+
+        try:
+            # استدعاء الدالة المسؤولة عن البحث، الـ Rerank، بناء البرومبت، ومحادثة LLM
+            answer, sources = answer_question(question, k=10, max_sources=3)
+
+            # طباعة الإجابة النهائية
+            print("\n" + "=" * 40 + " AI Auditor Answer " + "=" * 40)
+            print(answer)
+            print("=" * 99)
+
+            # طباعة المصادر المستخدمة للشفافية والتحقق
+            print("\n📌 --- Retrieved Sources Used ---")
+            if sources:
+                for idx, src in enumerate(sources, start=1):
+                    # عرض سكور الـ Reranker إذا وجد، وإلا السكور العادي
+                    score_val = src.get('rerank_score', src.get('score', 0.0))
+                    print(f"  [Source {idx}] Control: {src['control_id']} | Section: {src['section'].upper()} | Score: {score_val:.4f}")
+            else:
+                print("  No sources were utilized.")
+
+        except Exception as e:
+            print(f"\n❌ An error occurred during processing: {e}")
+
+if __name__ == "__main__":
+    main()
