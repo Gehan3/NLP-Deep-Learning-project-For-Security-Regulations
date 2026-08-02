@@ -2,6 +2,7 @@ from importlib import import_module
 import streamlit as st
 import sys
 import os
+import re
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 try:
     import prompt as rag
