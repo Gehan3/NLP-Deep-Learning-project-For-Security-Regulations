@@ -11,6 +11,8 @@ OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 retriever = ISO27002Retriever()
 
 
+
+
 SYSTEM_PROMPT = """You are an ISO/IEC 27002:2022 compliance assistant.
 Your ONLY knowledge source is the provided context chunks (marked [Source N]).
 You have NO other knowledge. If the context does not contain the answer, say so.
@@ -23,21 +25,23 @@ HARD CONSTRAINTS — violating any of these is a system failure:
 5. If the context is insufficient, respond ONLY with: "The retrieved ISO 27002 context does not contain sufficient information to answer this question." Do not attempt a partial answer unless the partial answer is fully supported by cited sources."""
 
 
+
 def validate_answer(answer: str, num_sources: int) -> str:
     """Post-process the answer to catch hallucinated [Source N] citations."""
     if num_sources == 0:
         return answer
 
-    # Find all [Source N] tags in the answer
+    
     cited = re.findall(r'\[Source\s*(\d+)\]', answer)
     cited_nums = {int(n) for n in cited}
 
-    # Check for out-of-range citations
+    
     invalid = {n for n in cited_nums if n < 1 or n > num_sources}
     if invalid:
         answer += f"\n\n⚠️ Warning: The answer cites sources {invalid} which were not in the retrieved context (valid range: 1–{num_sources})."
 
     return answer
+
 
 
 def build_messages(question: str, context: str) -> list[dict]:
@@ -88,6 +92,7 @@ Answer the question using ONLY the context chunks above. Follow these rules exac
     ]
 
 
+
 def ask_openrouter(messages: list[dict]) -> str:
     if not OPENROUTER_API_KEY:
         raise ValueError("Missing OPENROUTER_API_KEY in environment variables or .env file.")
@@ -104,6 +109,7 @@ def ask_openrouter(messages: list[dict]) -> str:
         max_tokens=1024,
     )
     return response.choices[0].message.content
+
 
 
 def answer_question(question: str, k: int = 4, max_sources: int = 3):

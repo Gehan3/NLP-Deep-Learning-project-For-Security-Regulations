@@ -44,6 +44,11 @@ class ISO27002Retriever:
                 
         return formatted_results
 
+    # [Anti-Hallucination Update]
+    # Why: Removed dead code that was placed after a return statement (THRESHOLD = -1.0 check).
+    # The threshold logic is now properly implemented in build_context() via the min_rerank_score
+    # parameter — see that method for the live version.
+
     def rerank_results(self, query: str, initial_results: list[dict], top_k: int = 4) -> list[dict]:
         if not initial_results:
             return []
@@ -57,14 +62,11 @@ class ISO27002Retriever:
             
         reranked = sorted(initial_results, key=lambda x: x["rerank_score"], reverse=True)
         return reranked[:top_k]
-        THRESHOLD = -1.0
-        if reranked and reranked[0]["rerank_score"] < THRESHOLD:
-            print(f"Warning: Best score ({reranked[0]['rerank_score']}) is below threshold ({THRESHOLD}). Returning empty results.")
-            return []
     
-    def build_context(self, question: str, k=10, max_sources=4):
+
+    def build_context(self, question: str, k=10, max_sources=4, min_rerank_score: float = -2.0):
         initial_rows = self.search(question, k=k)
-        
+
         if not initial_rows:
             return "", []
 
@@ -72,14 +74,18 @@ class ISO27002Retriever:
 
         selected = []
         seen_chunks = set()
-        seen_texts = set()  
+        seen_texts = set()
         for row in reranked_rows:
-            chunk_key = row["chunk_id"] 
+        
+            if row.get("rerank_score", 0.0) < min_rerank_score:
+                continue
+
+            chunk_key = row["chunk_id"]
             doc_text = row["text"].strip()
 
             if chunk_key in seen_chunks or doc_text in seen_texts:
                 continue
-                
+
             selected.append(row)
             seen_chunks.add(chunk_key)
             seen_texts.add(doc_text)
