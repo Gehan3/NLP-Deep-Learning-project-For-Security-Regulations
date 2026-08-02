@@ -89,7 +89,16 @@ class ISO27002Retriever:
 
         context = ""
         for source_number, row in enumerate(selected, start=1):
-            context += f"[Source {source_number}] ISO 27002 Control {row['control_id']} - Section: {row['section'].upper()}\n{row['text']}\n\n"
+            control_num = row['control_id']
+            section_name = row['section'].upper()
+            text_content = row['text']
+            
+            header = f"--- SOURCE {source_number} ---\n"
+            ctrl_line = f"ISO 27002 Control Number: {control_num}\n"
+            sec_line = f"Section: {section_name}\n"
+            content_line = f"Content: {text_content}\n\n"
+            
+            context += header + ctrl_line + sec_line + content_line
 
         return context.strip(), selected
 
