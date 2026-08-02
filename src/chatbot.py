@@ -10,7 +10,6 @@ def main():
        
         question = input("\n📝 Enter your compliance question: ").strip()
 
-        # أمر الخروج
         if question.lower() in ["exit", "quit"]:
             print("\nGoodbye! Stay secure and compliant. 🔒")
             break
@@ -22,10 +21,8 @@ def main():
         print("\n⏳ Searching controls, reranking, and generating auditor-grade answer...")
 
         try:
-            # استدعاء الدالة المسؤولة عن البحث، الـ Rerank، بناء البرومبت، ومحادثة LLM
             answer, sources = answer_question(question, k=10, max_sources=3)
 
-            # طباعة الإجابة النهائية
             print("\n" + "=" * 40 + " AI Auditor Answer " + "=" * 40)
             print(answer)
             print("=" * 99)
@@ -34,7 +31,6 @@ def main():
             print("\n📌 --- Retrieved Sources Used ---")
             if sources:
                 for idx, src in enumerate(sources, start=1):
-                    # عرض سكور الـ Reranker إذا وجد، وإلا السكور العادي
                     score_val = src.get('rerank_score', src.get('score', 0.0))
                     print(f"  [Source {idx}] Control: {src['control_id']} | Section: {src['section'].upper()} | Score: {score_val:.4f}")
             else:

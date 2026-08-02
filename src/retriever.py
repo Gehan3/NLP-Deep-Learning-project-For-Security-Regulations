@@ -57,7 +57,10 @@ class ISO27002Retriever:
             
         reranked = sorted(initial_results, key=lambda x: x["rerank_score"], reverse=True)
         return reranked[:top_k]
-
+        THRESHOLD = -1.0
+        if reranked and reranked[0]["rerank_score"] < THRESHOLD:
+            print(f"Warning: Best score ({reranked[0]['rerank_score']}) is below threshold ({THRESHOLD}). Returning empty results.")
+            return []
     
     def build_context(self, question: str, k=10, max_sources=4):
         initial_rows = self.search(question, k=k)

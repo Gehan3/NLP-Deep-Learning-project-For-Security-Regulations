@@ -11,12 +11,7 @@ COLLECTION_NAME = "iso27002_controls"
 
 
 def build_embed_text(row) -> str:
-    """Combine metadata context + raw text into a single string for embedding.
-
-    Prefixing the chunk with control ID, title, and section ensures the
-    embedding vector carries structural signals that queries like
-    "control 5.15 Access Control" can match on semantically.
-    """
+   
     meta_prefix = row.get("metadata_context", "")
     raw_text = row.get("text", "")
     if meta_prefix:
