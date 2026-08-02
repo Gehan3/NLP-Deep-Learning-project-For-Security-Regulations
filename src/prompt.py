@@ -27,7 +27,7 @@ HARD CONSTRAINTS — violating any of these is a system failure:
 CONTROL_ID_PATTERN = re.compile(r'\b(\d{1,2}\.\d{1,2})\b')
 CITATION_PATTERN = re.compile(r'\[Source\s*(\d+)\]')
 
-def validate_answer(answer: str, num_sources: int) -> str:
+def validate_answer(answer: str, sources: list) -> str:
     """Post-process the answer to catch hallucinated citations AND
     hallucinated control IDs that don't actually belong to the source
     they're attributed to.
@@ -155,7 +155,7 @@ def answer_question(question: str, k: int = 4, max_sources: int = 3):
 
     messages = build_messages(question, context)
     answer = ask_openrouter(messages)
-    answer = validate_answer(answer, num_sources=len(sources))
+    answer = validate_answer(answer, sources)
     return answer, sources
 
 
