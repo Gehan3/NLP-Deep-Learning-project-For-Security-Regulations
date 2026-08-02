@@ -32,7 +32,7 @@ class ISO27002Retriever:
             distances = results["distances"][0] if "distances" in results else [0.0] * len(ids)
             #Problem 2: Wrong distance metric assumption in ChromaDB retriever
             for chunk_id, doc, meta, dist in zip(ids, documents, metadatas, distances):  
-                score = 1.0 - dist
+                score = float(1.0 - dist) if dist <= 2.0 else 0.0
                 formatted_results.append({
                     "chunk_id": chunk_id,
                     "text": doc,
@@ -44,10 +44,7 @@ class ISO27002Retriever:
                 
         return formatted_results
 
-    # [Anti-Hallucination Update]
-    # Why: Removed dead code that was placed after a return statement (THRESHOLD = -1.0 check).
-    # The threshold logic is now properly implemented in build_context() via the min_rerank_score
-    # parameter — see that method for the live version.
+   
 
     def rerank_results(self, query: str, initial_results: list[dict], top_k: int = 4) -> list[dict]:
         if not initial_results:
@@ -76,7 +73,7 @@ class ISO27002Retriever:
         seen_chunks = set()
         seen_texts = set()
         for row in reranked_rows:
-        
+           
             if row.get("rerank_score", 0.0) < min_rerank_score:
                 continue
 
