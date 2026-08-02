@@ -3,34 +3,83 @@ from __future__ import annotations
 import math
 import os
 from pathlib import Path
-from typing import Any
 
 import chromadb
 from chromadb.config import Settings
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
-BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = Path(os.getenv("ISO27002_DB_PATH", str(BASE_DIR / "iso27002_chroma_db")))
-COLLECTION_NAME = os.getenv("ISO27002_COLLECTION_NAME", "iso27002_controls")
 
-MODEL_NAME = os.getenv("ISO27002_EMBEDDING_MODEL", "BAAI/bge-m3")
-RERANKER_MODEL_NAME = os.getenv("ISO27002_RERANKER_MODEL", "BAAI/bge-reranker-large")
+COLLECTION_NAME = "iso27002_controls"
+MODEL_NAME = "BAAI/bge-m3"
+RERANKER_MODEL_NAME = "BAAI/bge-reranker-large"
+
+
+# update for retriever
+def resolve_db_path() -> Path:
+
+    env_path = os.getenv("ISO27002_DB_PATH", "").strip()
+
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    # retriever.py is inside project/src/
+    project_root = Path(__file__).resolve().parent.parent
+    project_db = project_root / "iso27002_chroma_db"
+
+    if project_db.exists():
+        return project_db.resolve()
+
+    return (Path.cwd() / "iso27002_chroma_db").resolve()
 
 
 class ISO27002Retriever:
-    def __init__(self) -> None:
+    def __init__(self):
+        # update for retriever
+        self.db_path = resolve_db_path()
+
+        print(f"Current working directory: {Path.cwd()}")
+        print(f"Resolved ChromaDB path: {self.db_path}")
+        print(f"Database directory exists: {self.db_path.exists()}")
+
         self.client = chromadb.PersistentClient(
-            path=str(DB_PATH),
+            path=str(self.db_path),
             settings=Settings(anonymized_telemetry=False),
         )
-        self.collection = self.client.get_collection(COLLECTION_NAME)
+
+        # update for retriever
+        available_collections = self.client.list_collections()
+
+        collection_names = [
+            collection.name if hasattr(collection, "name") else str(collection)
+            for collection in available_collections
+        ]
+
+        print(f"Available Chroma collections: {collection_names}")
+
+        if COLLECTION_NAME not in collection_names:
+            raise RuntimeError(
+                "\nChroma collection was not found.\n"
+                f"Expected collection: {COLLECTION_NAME}\n"
+                f"Resolved database path: {self.db_path}\n"
+                f"Available collections: {collection_names}\n\n"
+                "Run the Chroma database builder from the project root:\n"
+                "python .\\src\\chroma_db.py"
+            )
+
+        self.collection = self.client.get_collection(
+            name=COLLECTION_NAME
+        )
+
         print(
             f"Loaded Chroma collection '{COLLECTION_NAME}' "
             f"with {self.collection.count()} chunks."
         )
 
         metadata = self.collection.metadata or {}
+
+        # Chroma uses hnsw:space, not hf:space.
         self.space = str(metadata.get("hnsw:space", "l2")).lower()
+
         if self.space not in {"cosine", "l2", "ip"}:
             print(
                 f"WARNING: unrecognized hnsw:space '{self.space}', "
@@ -39,6 +88,7 @@ class ISO27002Retriever:
             self.space = "l2"
 
         print(f"Collection distance space: {self.space}")
+
         self.model = SentenceTransformer(MODEL_NAME)
         self.reranker = CrossEncoder(RERANKER_MODEL_NAME)
 
@@ -159,13 +209,7 @@ class ISO27002Retriever:
         min_rerank_score: float | None = None,
         min_score_ratio: float | None = None,
     ) -> tuple[str, list[dict[str, Any]]]:
-        """
-        Retrieve, rerank, filter, deduplicate, and format source chunks.
-
-        ``min_rerank_score`` refers to the bounded sigmoid diagnostic score,
-        not the raw CrossEncoder logit. Both thresholds are optional because
-        uncalibrated global cutoffs can incorrectly remove relevant chunks.
-        """
+        
         clean_question = question.strip()
         if not clean_question:
             return "", []
