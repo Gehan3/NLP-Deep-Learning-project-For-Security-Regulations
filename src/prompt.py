@@ -1,124 +1,170 @@
+from __future__ import annotations
+
 import os
 import re
-from pathlib import Path
+from typing import Any
+
 from dotenv import load_dotenv
 from openai import OpenAI
-from .retriever import ISO27002Retriever #without . online
+
+try:
+    from .retriever import ISO27002Retriever
+except ImportError:
+    # Supports running prompt.py directly or importing it from Streamlit.
+    from retriever import ISO27002Retriever
+
 load_dotenv()
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
+
+INSUFFICIENT_CONTEXT_RESPONSE = (
+    "The retrieved ISO 27002 context does not contain sufficient information "
+    "to answer this question."
+)
 
 retriever = ISO27002Retriever()
 
+SYSTEM_PROMPT = f"""You are an ISO/IEC 27002:2022 compliance assistant.
+Your ONLY knowledge source is the supplied context chunks marked [SOURCE N].
+You have no authority to use training knowledge, previous conversations, or
+outside cybersecurity knowledge.
+
+HARD CONSTRAINTS:
+1. Use only facts explicitly stated in the supplied [SOURCE N] chunks.
+2. Never invent a Control ID, control title, requirement, recommendation, or citation.
+3. Every factual claim and every mentioned Control ID must have an inline [SOURCE N] citation.
+4. You may give a partial answer when the supported portion is useful and fully cited.
+5. If none of the supplied sources directly addresses the query, respond only with:
+   "{INSUFFICIENT_CONTEXT_RESPONSE}"
+6. A short keyword or topic query, such as "unauthorized access", means:
+   identify which supplied controls address that topic and summarize only what
+   the supplied chunks explicitly say about it.
+7. Do not provide legal advice, certify compliance, or infer unstated obligations.
+"""
+
+CONTROL_ID_PATTERN = re.compile(r"\b(\d{1,2}\.\d{1,2})\b")
+CITATION_PATTERN = re.compile(r"\[SOURCE\s*(\d+)\]", re.IGNORECASE)
 
 
+def validate_answer(answer: str, sources: list[dict[str, Any]]) -> str:
+    """Return the answer with explicit diagnostics when citation checks fail."""
+    cleaned_answer = (answer or "").strip()
+    if not cleaned_answer:
+        return INSUFFICIENT_CONTEXT_RESPONSE
 
-SYSTEM_PROMPT = """You are an ISO/IEC 27002:2022 compliance assistant.
-Your ONLY knowledge source is the provided context chunks (marked [Source N]).
-You have NO other knowledge. If the context does not contain the answer, say so.
+    if cleaned_answer == INSUFFICIENT_CONTEXT_RESPONSE:
+        return cleaned_answer
 
-HARD CONSTRAINTS — violating any of these is a system failure:
-1. NEVER use training knowledge, prior conversations, or general cybersecurity expertise.
-2. NEVER generate a Control ID, requirement, or recommendation that is not present in a [Source N] chunk.
-3. NEVER fabricate, infer, or extrapolate content that is not explicitly stated in the context.
-4. NEVER paraphrase so loosely that you introduce claims not in the original source text.
-5. If the context is insufficient, respond ONLY with: "The retrieved ISO 27002 context does not contain sufficient information to answer this question." Do not attempt a partial answer unless the partial answer is fully supported by cited sources."""
+    number_of_sources = len(sources)
+    if number_of_sources == 0:
+        return INSUFFICIENT_CONTEXT_RESPONSE
 
-CONTROL_ID_PATTERN = re.compile(r'\b(\d{1,2}\.\d{1,2})\b')
-CITATION_PATTERN = re.compile(r'\[Source\s*(\d+)\]')
+    warnings: list[str] = []
+    cited_numbers = {int(value) for value in CITATION_PATTERN.findall(cleaned_answer)}
+    invalid_numbers = {
+        value
+        for value in cited_numbers
+        if value < 1 or value > number_of_sources
+    }
 
-def validate_answer(answer: str, sources: list) -> str:
-    """Post-process the answer to catch hallucinated citations AND
-    hallucinated control IDs that don't actually belong to the source
-    they're attributed to.
-
-    The original version only checked that citation numbers were in the
-    valid 1..num_sources range. That catches typos, not hallucination:
-    a model can cite [Source 2] correctly (2 is in range) while stating a
-    control requirement that never appears in source 2's actual text.
-    """ 
-    num_sources = len(sources)
-    if num_sources == 0:
-        return answer
-
-    warnings = []
-    
-    cited_nums = {int(n) for n in CITATION_PATTERN.findall(answer)}
-    invalid_nums = {n for n in cited_nums if n < 1 or n > num_sources}
-    if invalid_nums:
+    if invalid_numbers:
         warnings.append(
-            f"cites sources {sorted(invalid_nums)} which were not in the retrieved "
-            f"context (valid range: 1–{num_sources})"
+            "Cites source numbers not included in the retrieved context: "
+            f"{sorted(invalid_numbers)}."
         )
 
-    if not cited_nums and "does not contain sufficient information" not in answer:
-        warnings.append("contains no [Source N] citations at all — likely ungrounded")
+    if not cited_numbers:
+        warnings.append("The generated answer contains no [SOURCE N] citation.")
 
-    source_control_ids = {i + 1: s.get("control_id", "") for i, s in enumerate(sources)}
+    source_control_ids = {
+        index + 1: str(source.get("control_id", ""))
+        for index, source in enumerate(sources)
+    }
 
-    for sentence in re.split(r'(?<=[.!?])\s+', answer):
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", cleaned_answer):
         mentioned_controls = CONTROL_ID_PATTERN.findall(sentence)
-        mentioned_sources = {int(n) for n in CITATION_PATTERN.findall(sentence)}
+        mentioned_sources = {
+            int(value) for value in CITATION_PATTERN.findall(sentence)
+        }
         if not mentioned_controls or not mentioned_sources:
             continue
-        for ctrl in mentioned_controls:
-            if not any(source_control_ids.get(n) == ctrl for n in mentioned_sources):
+
+        for control_id in mentioned_controls:
+            valid_attribution = any(
+                1 <= source_number <= number_of_sources
+                and source_control_ids.get(source_number) == control_id
+                for source_number in mentioned_sources
+            )
+            if not valid_attribution:
+                cited_control_ids = [
+                    source_control_ids.get(source_number, "unknown")
+                    for source_number in sorted(mentioned_sources)
+                ]
                 warnings.append(
-                    f"states Control {ctrl} alongside a citation to "
-                    f"{sorted(mentioned_sources)}, but that source is actually "
-                    f"Control {[source_control_ids.get(n) for n in mentioned_sources]} "
-                    f"— possible hallucinated attribution"
+                    f"Control {control_id} is cited against source control(s) "
+                    f"{cited_control_ids}."
                 )
-    
-    invalid = {n for n in cited_nums if n < 1 or n > num_sources}
-    if invalid:
-        answer += f"\n\n⚠️ Warning: The answer cites sources {invalid} which were not in the retrieved context (valid range: 1–{num_sources})."
 
-    return answer
+    if warnings:
+        unique_warnings = list(dict.fromkeys(warnings))
+        warning_text = "\n".join(f"- {warning}" for warning in unique_warnings)
+        cleaned_answer += f"\n\n> Validation warning\n{warning_text}"
+
+    return cleaned_answer
 
 
-
-def build_messages(question: str, context: str) -> list[dict]:
-    """Build system + user message pair for strict grounded QA."""
-    user_content = f"""## Context Chunks (your ONLY knowledge source)
+def build_messages(question: str, context: str) -> list[dict[str, str]]:
+    """Build a grounded system/user message pair."""
+    user_content = f"""## Context Chunks
 
 {context}
 
-## Question
+## User Query
 
 {question}
 
-## Instructions
+## Required Reasoning Policy
 
-Answer the question using ONLY the context chunks above. Follow these rules exactly:
+First determine whether at least one supplied chunk directly addresses the
+query or topic. Keyword overlap can be evidence of relevance, but only answer
+with the meaning explicitly supported by the chunk.
 
-**Grounding Rules (mandatory)**
-- Every statement you make MUST be directly traceable to a specific [Source N] chunk. If you cannot trace it, do not say it.
-- If the context does not fully answer the question, state exactly what is missing — do not fill gaps with outside knowledge.
-- Do not provide legal advice or certify compliance.
+- If one or more chunks directly address the query, answer the supported part.
+- Do not refuse merely because the query is a short phrase rather than a full question.
+- If the chunks cover only part of a broader question, answer that supported part
+  and briefly state which requested detail is not present.
+- If no supplied chunk directly addresses the query, output exactly:
+  {INSUFFICIENT_CONTEXT_RESPONSE}
 
-**Citation Rules (mandatory)**
-- Every factual claim, control requirement, recommendation, or paraphrase MUST end with an inline citation: [Source 1], [Source 2], etc.
-- Never state a Control ID or requirement without a citation.
-- Never invent a [Source N] tag not present in the context above.
-- If sources disagree, present both with citations and note the discrepancy.
+## Citation Rules
 
-**Authority Order (when sources conflict)**
-1. **Control statement** — the normative requirement (what must be done).
-2. **Guidance** — implementation detail (how to do it). Flag if it contradicts the Control statement.
-3. **Other information** — supplementary only. Never override Control or Guidance with this.
-4. **Purpose** — why the control exists. Use for framing, not for deriving requirements.
+- End every factual claim or paraphrase with its supporting [SOURCE N] citation.
+- Never cite a source number that does not appear above.
+- Never mention a Control ID without citing the source containing that same ID.
+- If multiple sources support one sentence, cite all applicable sources.
 
-**Output Format**
-- Open with a one-line direct answer.
-- Use `## Control Overview` with bold Control IDs (e.g. **5.10**).
-- Use `## Implementation Guidance` with bullet points from Guidance chunks.
-- Use `## Additional Notes` only if Other information is relevant.
-- Keep bullets concise and audit-ready.
-- For multiple controls, use subsections: `### 5.10 — <title>`.
+## Authority Order
 
-**Scope Discipline**
-- If the context references another control (e.g. "see 5.12") but that control's chunk is not in the context above, state: "Control 5.12 is referenced but not included in the retrieved context." Do not describe what you think it says."""
+When supplied chunks conflict, prioritize in this order:
+1. Control statement
+2. Guidance
+3. Other information
+4. Purpose
+
+Do not infer missing content from another control merely because it is referenced.
+
+## Output Format
+
+- Begin with a direct one-sentence answer.
+- For a keyword/topic query, identify the relevant retrieved control(s) and state
+  exactly how the supplied chunk relates to the topic.
+- Use `## Control Overview` when at least one control is relevant.
+- Use `## Implementation Guidance` only when a supplied Guidance chunk supports it.
+- Use `## Additional Notes` only when supplied Other information or Purpose text is relevant.
+- Omit unsupported sections instead of refusing the whole answer.
+- Keep the answer concise and audit-ready.
+"""
 
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -126,10 +172,12 @@ Answer the question using ONLY the context chunks above. Follow these rules exac
     ]
 
 
-
-def ask_openrouter(messages: list[dict]) -> str:
+def ask_openrouter(messages: list[dict[str, str]]) -> str:
     if not OPENROUTER_API_KEY:
-        raise ValueError("Missing OPENROUTER_API_KEY in environment variables or .env file.")
+        raise ValueError(
+            "Missing OPENROUTER_API_KEY in environment variables, .env, "
+            "or Streamlit secrets."
+        )
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -142,33 +190,52 @@ def ask_openrouter(messages: list[dict]) -> str:
         temperature=0.0,
         max_tokens=1024,
     )
-    return response.choices[0].message.content
+
+    content = response.choices[0].message.content
+    return content.strip() if content else ""
 
 
+def answer_question(
+    question: str,
+    k: int = 12,
+    max_sources: int = 4,
+) -> tuple[str, list[dict[str, Any]]]:
+    clean_question = question.strip()
+    if not clean_question:
+        return "Please enter a question about ISO/IEC 27002:2022.", []
 
-def answer_question(question: str, k: int = 4, max_sources: int = 3):
+    # update for retriever: use a wider candidate pool and let the reranker
+    # select sources after reranking, filtering, and deduplication.
+    context, sources = retriever.build_context(
+        clean_question,
+        k=k,
+        max_sources=max_sources,
+        min_rerank_score=None,
+        min_score_ratio=None,
+    )
 
-    context, sources = retriever.build_context(question, k=k, max_sources=max_sources)
+    if not context or not sources:
+        return INSUFFICIENT_CONTEXT_RESPONSE, []
 
-    if not context:
-        return "I could not find any relevant controls in the ISO 27002 standard to answer your question.", []
-
-    messages = build_messages(question, context)
+    messages = build_messages(clean_question, context)
     answer = ask_openrouter(messages)
-    answer = validate_answer(answer, sources)
-    return answer, sources
+    return validate_answer(answer, sources), sources
 
 
 if __name__ == "__main__":
-    sample_question = "What are the requirements for managing privileged access rights?"
-    
-    print(f"\nAsking Question: {sample_question}\n" + "-"*50)
-    
-    answer, sources = answer_question("unauthorized access")
-    
+    sample_question = "unauthorized access"
+    print(f"\nAsking Question: {sample_question}\n" + "-" * 50)
+
+    generated_answer, used_sources = answer_question(sample_question)
+
     print("\n--- AI Answer ---")
-    print(answer)
-    
+    print(generated_answer)
+
     print("\n--- Sources Used ---")
-    for idx, src in enumerate(sources, start=1):
-        print(f"[Source {idx}] Control {src['control_id']} ({src['section']}) - Score: {src['score']:.4f}")
+    for index, source in enumerate(used_sources, start=1):
+        print(
+            f"[SOURCE {index}] Control {source['control_id']} "
+            f"({source['section']}) | embedding={source['embedding_score']:.4f} "
+            f"| rerank_logit={source['rerank_logit']:.4f} "
+            f"| rerank_score={source['rerank_score']:.4f}"
+        )
