@@ -24,17 +24,51 @@ HARD CONSTRAINTS — violating any of these is a system failure:
 4. NEVER paraphrase so loosely that you introduce claims not in the original source text.
 5. If the context is insufficient, respond ONLY with: "The retrieved ISO 27002 context does not contain sufficient information to answer this question." Do not attempt a partial answer unless the partial answer is fully supported by cited sources."""
 
-
+CONTROL_ID_PATTERN = re.compile(r'\b(\d{1,2}\.\d{1,2})\b')
+CITATION_PATTERN = re.compile(r'\[Source\s*(\d+)\]')
 
 def validate_answer(answer: str, num_sources: int) -> str:
-    """Post-process the answer to catch hallucinated [Source N] citations."""
+    """Post-process the answer to catch hallucinated citations AND
+    hallucinated control IDs that don't actually belong to the source
+    they're attributed to.
+
+    The original version only checked that citation numbers were in the
+    valid 1..num_sources range. That catches typos, not hallucination:
+    a model can cite [Source 2] correctly (2 is in range) while stating a
+    control requirement that never appears in source 2's actual text.
+    """ 
+    num_sources = len(sources)
     if num_sources == 0:
         return answer
 
+    warnings = []
     
-    cited = re.findall(r'\[Source\s*(\d+)\]', answer)
-    cited_nums = {int(n) for n in cited}
+    cited_nums = {int(n) for n in CITATION_PATTERN.findall(answer)}
+    invalid_nums = {n for n in cited_nums if n < 1 or n > num_sources}
+    if invalid_nums:
+        warnings.append(
+            f"cites sources {sorted(invalid_nums)} which were not in the retrieved "
+            f"context (valid range: 1–{num_sources})"
+        )
 
+    if not cited_nums and "does not contain sufficient information" not in answer:
+        warnings.append("contains no [Source N] citations at all — likely ungrounded")
+
+    source_control_ids = {i + 1: s.get("control_id", "") for i, s in enumerate(sources)}
+
+    for sentence in re.split(r'(?<=[.!?])\s+', answer):
+        mentioned_controls = CONTROL_ID_PATTERN.findall(sentence)
+        mentioned_sources = {int(n) for n in CITATION_PATTERN.findall(sentence)}
+        if not mentioned_controls or not mentioned_sources:
+            continue
+        for ctrl in mentioned_controls:
+            if not any(source_control_ids.get(n) == ctrl for n in mentioned_sources):
+                warnings.append(
+                    f"states Control {ctrl} alongside a citation to "
+                    f"{sorted(mentioned_sources)}, but that source is actually "
+                    f"Control {[source_control_ids.get(n) for n in mentioned_sources]} "
+                    f"— possible hallucinated attribution"
+                )
     
     invalid = {n for n in cited_nums if n < 1 or n > num_sources}
     if invalid:
