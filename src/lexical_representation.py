@@ -27,7 +27,6 @@ def tokenize(text: str) -> list[str]:
     text = re.sub(r"[^\w\s]", " ", text)      # إزالة علامات الترقيم
     tokens = text.split()
     
-    # تنقية الكلمات المهملة وتطبيق التجذير (Stemming)
     stemmed_tokens = [
         stemmer.stem(word) 
         for word in tokens 

@@ -135,9 +135,18 @@ Nlp_Proj/
 └── requirements.txt
 
 ```
-
+add new versions
+git checkout -b version1
+git add .
+git commit -m "Initial commit for version1"
+git push -u origin version1
 ---
-
+for update
+git remote -v
+git status
+git add .
+git commit -m "Describe your updates here, e.g., Updated RAG pipeline and optimized chunking"
+git push origin main
 # Installation
 
 ## 1. Clone the repository

@@ -15,7 +15,6 @@ CUSTOM_STOP_WORDS = set(ENGLISH_STOP_WORDS).union({
 })
 
 def advanced_tokenize(text: str) -> list[str]:
-    """توحيد النص، إزالة علامات الترقيم، إزالة الكلمات المهملة، والتجذير للـ BM25."""
     if not isinstance(text, str):
         return []
     text = text.lower()
@@ -96,7 +95,7 @@ if __name__ == "__main__":
     #"Malware encrypts business-critical data causing service disruption"
     results = retrieve_hybrid_bge(test_query, chunks_df, chunk_embeddings, bm25_index, alpha=0.6, k=5)
 
-    pd.set_option('display.max_columns', None)  # عرض كل الأعمدة
+    pd.set_option('display.max_columns', None)  
     pd.set_option('display.width', 1000)
     print(results)
     pass

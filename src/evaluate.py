@@ -44,7 +44,7 @@ def evaluate_retrieval(retriever, ground_truth_data, k=3):
 
         
         #Metrics
-        # Hit Rate: هل يوجد على الأقل كنترول واحد صحيح ضمن النتائج المسترجعة؟
+        # Hit Rate: 
         hit = 1 if any(ctrl in relevant_controls for ctrl in retrieved_controls) else 0
         hit_rates.append(hit)
         
