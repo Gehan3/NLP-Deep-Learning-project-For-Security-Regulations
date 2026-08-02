@@ -210,8 +210,7 @@ def answer_question(
         clean_question,
         k=k,
         max_sources=max_sources,
-        min_rerank_score=None,
-        min_score_ratio=None,
+    
     )
 
     if not context or not sources:
